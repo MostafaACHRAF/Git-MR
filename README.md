@@ -1,17 +1,17 @@
 # Git-Auto-MR
-Create gitlab merge requests automatically
+Create gitlab merge requests automatically - Version 3.0
 
-![Alt text](./AutoGitMR-gitlab3.0/images/logo.png)
+![Alt text](./images/logo.png)
 
 ### If you create a lot of merge requests every day?
 ### If you you want to create merge requests in a cool way ?
 ### If you are sick from repeating the same thing every day ?
 
-![Alt text](./AutoGitMR-gitlab3.0/images/gitMerge.gif)
+![Alt text](./images/gitMerge.gif)
 
 ### Then you need :
 
-![Alt text](./AutoGitMR-gitlab3.0/images/lelouche.gif)
+![Alt text](./images/lelouche.gif)
 
 # "GIT-AUTO-MR"
 
@@ -26,7 +26,7 @@ Create gitlab merge requests automatically
 
 ## For windows users :
 
-![Alt text](./AutoGitMR-gitlab3.0/images/windows.gif)
+![Alt text](./images/windows.gif)
 
 0- Download the installer of your operating system + git-lmr script\
 1- On windows, open the bat file as administrator : gitAutoMR-WindowsInstaller.bat\
@@ -34,7 +34,7 @@ Create gitlab merge requests automatically
 
 ## For linux/Unix users :
 
-![Alt text](./AutoGitMR-gitlab3.0/images/linux.gif)
+![Alt text](./images/linux.gif)
 
 0- Download the installer of your operating system + git-lmr script\
 1-Open the terminal, type : sudo chmod +x gitAutoMR-LinuxInstaller.sh\
@@ -52,7 +52,7 @@ Create gitlab merge requests automatically
 *After that you will have a confirmation message, answer with : [y/n]\
 *If everything works fine, you will be redirected automatically to your gitlab account to view your merge request details\
 
-![Alt text](./AutoGitMR-gitlab3.0/images/happyCoding.gif)
+![Alt text](./images/happyCoding.gif)
 
 ### Enjoy AutoGitMR \\[^_^]/
 ### Happy coding...
