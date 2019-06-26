@@ -1,0 +1,116 @@
+#!/bin/bash
+
+
+#@Author : Mostafa ASHARF
+#@email : mostafaegma@wgmail.com
+#@Date (en) : 05/04/19
+#@Last update (en) : 06/25/19
+#@Version : 3.0
+#Developed will listening to piano music \(^_^)/
+
+
+#git lmr <target_branch[optional;default=dev]>
+#assigned_to : <assigned_to[optional;default=me]>
+#labels : <commit_label(list)[optional;default=java;separator=,]>
+
+#======= FUN CONFIG =======
+#example : "GITLAB-PROJECT-NAME/GITLAB-PROJECT-NAME"
+TARGET_GITLAB_PROJECT_NAME=
+
+#example : "dZY4hpJwkdcdm2-0000"
+PRIVATE_TOKEN=
+
+#example : "https://gitlab.orewa.sasa.com/api/v4/projects/"
+GITLAB_PROJECTS_URL=
+
+#example : "https://gitlab.orewa.sasa.com/api/v4/users"
+GITLAB_USERS_URL=
+
+#example : "https://gitlab.orewa.sasa.com/${TARGET_GITLAB_PROJECT_NAME}/merge_requests/"
+GITLAB_MRS_URL=
+
+SOURCE_BRANCH=$(git rev-parse --abbrev-ref HEAD)
+MERGE_REQUEST_TITLE=$(git log --pretty=format:%s HEAD | head -n 1)
+ACTUAL_USER_EMAIL=$(git config user.email)
+ACTUAL_USER_USERNAME=${ACTUAL_USER_EMAIL%%@*}
+DEFAULT_LABELS="java"
+DEFAULT_TARGET_BRANCH="dev"
+OS=""
+
+#======= PREPARE FUN PARAMS =======
+TARGET_BRANCH="${1}"
+read -p ">> [ASSIGNEE TO (username)] : " ASSIGNEE_GITLAB_USERNAME
+read -p ">> [LABELS (separator=,)] : " MR_LABELS
+
+if [[ -z "${TARGET_BRANCH}" ]]; then
+  TARGET_BRANCH="${DEFAULT_TARGET_BRANCH}"
+fi
+
+if [[ -z "${ASSIGNEE_GITLAB_USERNAME}" ]]; then
+  ASSIGNEE_GITLAB_USERNAME=${ACTUAL_USER_USERNAME}
+fi
+
+if [[ -z "${MR_LABELS}" ]]; then
+  MR_LABELS="${DEFAULT_LABELS}"
+fi
+
+#======= Main fun =======
+echo ">> [Core] : Gitlab auto merge request v.3.0"
+echo ">> [Project] : ${TARGET_GITLAB_PROJECT_NAME}"
+printf "\n"
+
+TARGET_GITLAB_PROJECT_ID=`curl --header "Private-Token:${PRIVATE_TOKEN}" --silent "${GITLAB_PROJECTS_URL}" | jq '.[] | select(.path_with_namespace=="'${TARGET_GITLAB_PROJECT_NAME}'") | .id'`
+ASSIGNEE_GITLAB_USER_ID=`curl --header "Private-Token:${PRIVATE_TOKEN}" --silent "${GITLAB_USERS_URL}?username=${ASSIGNEE_GITLAB_USERNAME}" | jq '.[0].id'`
+
+if [[ "${ASSIGNEE_GITLAB_USERNAME}" == "${ACTUAL_USER_USERNAME}" ]]; then
+  AUTHOR_ID="${ASSIGNEE_GITLAB_USER_ID}"
+else
+  AUTHOR_ID=`curl --header "Private-Token:${PRIVATE_TOKEN}" --silent "${GITLAB_USERS_URL}?username=${ACTUAL_USER_USERNAME}" | jq '.[0].id'`
+fi
+
+echo ">> [AUTHOR_ID] = ${AUTHOR_ID}"
+if [[ "${AUTHOR_ID}" != null && "${ASSIGNEE_GITLAB_USER_ID}" ]]; then
+  BODY="{
+    \"id\": ${TARGET_GITLAB_PROJECT_ID},
+    \"source_branch\": \"${SOURCE_BRANCH}\",
+    \"target_branch\": \"${TARGET_BRANCH}\",
+    \"remove_source_branch\": true,
+    \"title\": \"${MERGE_REQUEST_TITLE}\",
+    \"assignee_id\": ${ASSIGNEE_GITLAB_USER_ID},
+    \"author_id\":${AUTHOR_ID},
+    \"labels\": \"${MR_LABELS}\"
+  }"
+
+  echo "${BODY}"
+
+  read -p ">> [?] : Do you want to create a merge request for [${SOURCE_BRANCH}] into [${TARGET_BRANCH}] [y/n]?" PROCEED
+
+  case "${PROCEED}" in
+    [yY]* )
+    curl -X POST "${GITLAB_PROJECTS_URL}${TARGET_GITLAB_PROJECT_ID}/merge_requests" \
+         --header "PRIVATE-TOKEN:${PRIVATE_TOKEN}" \
+         --header "Content-Type: application/json" \
+         --data "${BODY}";
+
+    CREATED_MR_URL="${GITLAB_PROJECTS_URL}${TARGET_GITLAB_PROJECT_ID}/merge_requests?state=opened&order_by=created_at&assignee_id=${ASSIGNEE_GITLAB_USER_ID}&author_id=${AUTHOR_ID}"
+    CREATED_MR_IID=`curl --header "Private-Token:${PRIVATE_TOKEN}" --silent "${CREATED_MR_URL}" | jq '.[0].iid'`
+    echo "CREATED_MR_IID = ${CREATED_MR_IID}"
+    if [[ "${CREATED_MR_IID}" != null ]]; then
+      if [[ "${OS}" == "LINUX" ]]; then
+        xdg-open "${GITLAB_MRS_URL}${CREATED_MR_IID}"
+      elif [[ "${OS}" == "WINDOWS" ]]; then
+        start "${GITLAB_MRS_URL}${CREATED_MR_IID}"
+      fi
+    else
+      printf "\n>> [Error] : Something went wrong, this merge request can't be created !\n"
+    fi
+    ;;
+  esac
+
+else
+  if [[ "${ASSIGNEE_GITLAB_USER_ID}" == null ]]; then
+    echo ">> [Invalid] : User.name, [ASSIGNEE_GITLAB_USER_ID=${ASSIGNEE_GITLAB_USERNAME}] !"
+  else
+    echo ">> [Invalid] : User.name, [ACTUAL_USER_USERNAME=${ACTUAL_USER_USERNAME}] !"
+  fi
+fi
