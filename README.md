@@ -1,46 +1,20 @@
-# Git-Auto-MR
-Create gitlab merge requests automatically - Version 3.0
+# What it is Git-MR?
+Git-MR is a git command to create git merge requests from the terminal.
+The actual version support Gitlab only, we will support Github as well, in the near future.
 
-![Alt text](./images/logo.png)
+This tool is available on all Linux distributions. We may support windows in the futrure releases.
 
-### If you create a lot of merge requests every day?
-### If you you want to create merge requests in a cool way ?
-### If you are sick from repeating the same thing every day ?
+> The idea behind Git-MR, is that you don't have to leave your terminal to submit your merge requests, everything can be done via the terminal.
 
-![Alt text](./images/gitMerge.gif)
-
-### Then you need :
-
-![Alt text](./images/lelouche.gif)
-
-# "GIT-AUTO-MR"
-
-# What is AutoGitMR ?
-
-*AutoGitMR is a git command, to create automatic merge requests on gitlab, version 3.0\
-*Works on Linux &amp; windows operating systems\
-*Name of the new command is : git lmr\
-*Signification : Gitlab Merge request\
+---
 
 # How to install it?
+> The work on new version of the installer is in progress
+> Instead of doing a list of actions, all you have to do is run one bash command to enjoy Git-MR. This feature is coming soon stay tuned.
 
-## For windows users :
+---
 
-![Alt text](./images/windows.gif)
-
-0- Download the installer of your operating system + git-lmr script\
-1- On windows, open the bat file as administrator : gitAutoMR-WindowsInstaller.bat\
-2- Then add the created folder : 'C:\gitAutoMR' to your PATH variable.\
-
-## For linux/Unix users :
-
-![Alt text](./images/linux.gif)
-
-0- Download the installer of your operating system + git-lmr script\
-1-Open the terminal, type : sudo chmod +x gitAutoMR-LinuxInstaller.sh\
-2-Run the installer, by typing : ./gitAutoMR-LinuxInstaller.sh\
-
-# How to use it ?
+# How it works?
 
 *Now, the terminal, and cmd will recognize git lmr as a git command.\
 *The command is :\
@@ -52,9 +26,20 @@ Create gitlab merge requests automatically - Version 3.0
 *After that you will have a confirmation message, answer with : [y/n]\
 *If everything works fine, you will be redirected automatically to your gitlab account to view your merge request details\
 
-![Alt text](./images/happyCoding.gif)
 
-### Enjoy AutoGitMR \\[^_^]/
-### Happy coding...
-#### By Mostafa ACHRAF
 
+---
+
+# Dependencies
+
+
+---
+
+# Comming features
+> Add support for github
+> Update linux installer to a faster and more stable version
+> Create windows installer
+> Create a bash command to update Git-MR, and notify the users if a new version is released
+> Create a bash command to uninstall Git-MR on linux
+> Create a bash command to update the config file, rather than updating it manually by the user
+> Create Git-MR logo

@@ -3,8 +3,8 @@
 
 #@Author : Mostafa ASHARF
 #@email : mostafaegma@wgmail.com
-#@Date (en) : 05/04/19
-#@Last update (en) : 06/25/19
+#@Date : 04/02/2019
+#@Last update : 20/03/2020
 #@Version : 3.0
 #Developed will listening to piano music \(^_^)/
 
@@ -12,6 +12,7 @@
 #git lmr <target_branch[optional;default=dev]>
 #assigned_to : <assigned_to[optional;default=me]>
 #labels : <commit_label(list)[optional;default=java;separator=,]>
+#git lmr -i : interactive mode, this helps you fill the params in an interactive way, (question => response)
 
 #======= FUN CONFIG =======
 #example : "GITLAB-PROJECT-NAME/GITLAB-PROJECT-NAME"
@@ -29,65 +30,75 @@ GITLAB_USERS_URL=
 #example : "https://gitlab.orewa.sasa.com/${TARGET_GITLAB_PROJECT_NAME}/merge_requests/"
 GITLAB_MRS_URL=
 
-SOURCE_BRANCH=$(git rev-parse --abbrev-ref HEAD)
-MERGE_REQUEST_TITLE=$(git log --pretty=format:%s HEAD | head -n 1)
+#======= PREPARE FUN PARAMS =======
+
+SOURCE_BRANCH="${1}"
+TARGET_BRANCH="${2}"
+ASSIGNEE_USER="${3}"
+MR_TITLE="${4}"
+LABELS="${5}"
+
+DEFAULT_SOURCE_BRANCH=$(git rev-parse --abbrev-ref HEAD)
+DEFAULT_MR_TITLE=$(git log --pretty=format:%s HEAD | head -n 1)
 ACTUAL_USER_EMAIL=$(git config user.email)
 ACTUAL_USER_USERNAME=${ACTUAL_USER_EMAIL%%@*}
-DEFAULT_LABELS="java"
-DEFAULT_TARGET_BRANCH="dev"
-OS=""
+DEFAULT_TARGET_BRANCH="release/tefal_rtdtc_temp"
+OS="LINUX"
 
-#======= PREPARE FUN PARAMS =======
-TARGET_BRANCH="${1}"
-read -p ">> [ASSIGNEE TO (username)] : " ASSIGNEE_GITLAB_USERNAME
-read -p ">> [LABELS (separator=,)] : " MR_LABELS
+if [[ -z "${SOURCE_BRANCH}" ]]; then
+  SOURCE_BRANCH="${DEFAULT_SOURCE_BRANCH}"
+fi
 
 if [[ -z "${TARGET_BRANCH}" ]]; then
   TARGET_BRANCH="${DEFAULT_TARGET_BRANCH}"
 fi
 
-if [[ -z "${ASSIGNEE_GITLAB_USERNAME}" ]]; then
-  ASSIGNEE_GITLAB_USERNAME=${ACTUAL_USER_USERNAME}
+if [[ -z "${ASSIGNEE_USER}" ]]; then
+  ASSIGNEE_USER=${ACTUAL_USER_USERNAME}
 fi
 
-if [[ -z "${MR_LABELS}" ]]; then
-  MR_LABELS="${DEFAULT_LABELS}"
+if [[ -z "${MR_TITLE}" ]]; then
+  MR_TITLE="${DEFAULT_MR_TITLE}"
+  elif [[ "$MR_TITLE" =~ wip:|WIP: ]]; then
+    MR_TITLE="${MR_TITLE}${DEFAULT_MR_TITLE}"
 fi
+
 
 #======= Main fun =======
 echo ">> [Core] : Gitlab auto merge request v.3.0"
 echo ">> [Project] : ${TARGET_GITLAB_PROJECT_NAME}"
 printf "\n"
 
-TARGET_GITLAB_PROJECT_ID=`curl --header "Private-Token:${PRIVATE_TOKEN}" --silent "${GITLAB_PROJECTS_URL}" | jq '.[] | select(.path_with_namespace=="'${TARGET_GITLAB_PROJECT_NAME}'") | .id'`
-ASSIGNEE_GITLAB_USER_ID=`curl --header "Private-Token:${PRIVATE_TOKEN}" --silent "${GITLAB_USERS_URL}?username=${ASSIGNEE_GITLAB_USERNAME}" | jq '.[0].id'`
+#TARGET_GITLAB_PROJECT_ID=`curl --header "Private-Token:${PRIVATE_TOKEN}" --silent "${GITLAB_PROJECTS_URL}" | jq '.[] | select(.path_with_namespace=="'${TARGET_GITLAB_PROJECT_NAME}'") | .id'`
+TARGET_GITLAB_PROJECT_ID=118
+ASSIGNEE_GITLAB_USER_ID=`curl --header "Private-Token:${PRIVATE_TOKEN}" --silent "${GITLAB_USERS_URL}?username=${ASSIGNEE_USER}" | jq '.[0].id'`
+AUTHOR_ID=`curl --header "Private-Token:${PRIVATE_TOKEN}" --silent "${GITLAB_USERS_URL}?username=${ACTUAL_USER_USERNAME}" | jq '.[0].id'`
 
-if [[ "${ASSIGNEE_GITLAB_USERNAME}" == "${ACTUAL_USER_USERNAME}" ]]; then
-  AUTHOR_ID="${ASSIGNEE_GITLAB_USER_ID}"
-else
-  AUTHOR_ID=`curl --header "Private-Token:${PRIVATE_TOKEN}" --silent "${GITLAB_USERS_URL}?username=${ACTUAL_USER_USERNAME}" | jq '.[0].id'`
-fi
+#if [[ "${ASSIGNEE_GITLAB_USERNAME}" == "${ACTUAL_USER_USERNAME}" ]]; then
+#  AUTHOR_ID="${ASSIGNEE_GITLAB_USER_ID}"
+#else
+#  AUTHOR_ID=`curl --header "Private-Token:${PRIVATE_TOKEN}" --silent "${GITLAB_USERS_URL}?username=${ACTUAL_USER_USERNAME}" | jq '.[0].id'`
+#fi
 
-echo ">> [AUTHOR_ID] = ${AUTHOR_ID}"
 if [[ "${AUTHOR_ID}" != null && "${ASSIGNEE_GITLAB_USER_ID}" ]]; then
   BODY="{
     \"id\": ${TARGET_GITLAB_PROJECT_ID},
     \"source_branch\": \"${SOURCE_BRANCH}\",
     \"target_branch\": \"${TARGET_BRANCH}\",
     \"remove_source_branch\": true,
-    \"title\": \"${MERGE_REQUEST_TITLE}\",
+    \"title\": \"${MR_TITLE}\",
     \"assignee_id\": ${ASSIGNEE_GITLAB_USER_ID},
     \"author_id\":${AUTHOR_ID},
-    \"labels\": \"${MR_LABELS}\"
+    \"labels\": \"${LABELS}\"
   }"
 
   echo "${BODY}"
 
   read -p ">> [?] : Do you want to create a merge request for [${SOURCE_BRANCH}] into [${TARGET_BRANCH}] [y/n]?" PROCEED
-
+  
   case "${PROCEED}" in
     [yY]* )
-    curl -X POST "${GITLAB_PROJECTS_URL}${TARGET_GITLAB_PROJECT_ID}/merge_requests" \
+    curl -X POST "${GITLAB_PROJECTS_URL}/${TARGET_GITLAB_PROJECT_ID}/merge_requests" \
          --header "PRIVATE-TOKEN:${PRIVATE_TOKEN}" \
          --header "Content-Type: application/json" \
          --data "${BODY}";
