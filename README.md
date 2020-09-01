@@ -9,8 +9,9 @@ This tool is available on all Linux distributions. We may support windows in the
 ---
 
 # How to install it?
-> The work on new version of the installer is in progress
-> Instead of doing a list of actions, all you have to do is run one bash command to enjoy Git-MR. This feature is coming soon stay tuned.
+Copy page this command to install GitMR
+
+> $ sudo git clone https://github.com/MostafaACHRAF/Git-MR /bin/GitMR && sudo chmod +x /bin/GitMR/*.sh && .linux-install.sh
 
 ---
 

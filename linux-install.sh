@@ -15,7 +15,15 @@ echo "##\_____|##|_|###|_|#()#|_|##|_|#|_|#|_\#"
 echo "#########################################"
 printf "V.${VERSION}\n\n"
 #@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@ CONFIG @@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@
-SRC_PATH="/bin/gitAutoMR"
+#clone the repository to /bin
+#give the scripts execution rights
+#then run the installer script
+#done!
+git clone https://github.com/MostafaACHRAF/Git-MR /bin && chmod +x /bin/Git-MR*.sh && .linux-install.sh
+
+
+
+SRC_PATH="/bin/gitMR"
 SRC_SCRIPT="git-lmr"
 SRC_SCRIPT_PATH="${SRC_PATH}/${SRC_SCRIPT}"
 PKG_MANAGER="NONO"
@@ -57,6 +65,11 @@ logByStepAndState() {
     ;;
   esac
   echo ">> [STATE] : SUCCESS STEPS = [${SUCCESS_RATE}/${TOTAL_STEPS}]..."
+  if [[ ${SUCCESS_RATE} -eq ${TOTAL_STEPS}]]; then
+    echo "(Git-MR) => has been installed successfully. Enjoy 🎉"
+    else
+      echo "Having troubling? Get help from : https://github.com/MostafaACHRAF/Git-MR"
+  fi
 }
 
 appendStringToFile() {
@@ -113,7 +126,7 @@ appendStringToFile "${ZSH_BASH_VAR_PATH}" "${ZSH_CONF_PATH}"
 appendStringToFile "${ZSH_BASH_VAR_PATH}" "${BASH_CONF_PATH}"
 logByStepAndState "2" "${IS_STEP2_SUCCEEDED}"
 
-#Download and install jq on [debian-base, and others distros...]
+#Download and install jq on [debian-base, and other distros...]
 IS_STEP3_SUCCEEDED=true
 declare -A OS_PKG_MANAGERS;
 OS_PKG_MANAGERS[/etc/redhat-release]=dnf
