@@ -16,19 +16,22 @@
 
 #======= FUN CONFIG =======
 #example : "GITLAB-PROJECT-NAME/GITLAB-PROJECT-NAME"
-TARGET_GITLAB_PROJECT_NAME=
+GITLAB_PROJECT_NAME=
+
+#example : "https://gitlab.orewa.sasa.com"
+GITLAB_URL=
 
 #example : "dZY4hpJwkdcdm2-0000"
 PRIVATE_TOKEN=
 
 #example : "https://gitlab.orewa.sasa.com/api/v4/projects/"
-GITLAB_PROJECTS_URL=
+GITLAB_PROJECTS_URL="${GITLAB_URL}/api/v4/projects"
 
 #example : "https://gitlab.orewa.sasa.com/api/v4/users"
-GITLAB_USERS_URL=
+GITLAB_USERS_URL="${GITLAB_URL}/api/v4/users"
 
-#example : "https://gitlab.orewa.sasa.com/${TARGET_GITLAB_PROJECT_NAME}/merge_requests/"
-GITLAB_MRS_URL=
+#example : "https://gitlab.orewa.sasa.com/${GITLAB_PROJECT_NAME}/merge_requests/"
+GITLAB_MRS_URL="${GITLAB_URL}/${GITLAB_PROJECT_NAME}/merge_requests"
 
 #======= PREPARE FUN PARAMS =======
 
@@ -66,19 +69,13 @@ fi
 
 #======= Main fun =======
 echo ">> [Core] : Gitlab auto merge request v.3.0"
-echo ">> [Project] : ${TARGET_GITLAB_PROJECT_NAME}"
+echo ">> [Project] : ${GITLAB_PROJECT_NAME}"
 printf "\n"
 
-#TARGET_GITLAB_PROJECT_ID=`curl --header "Private-Token:${PRIVATE_TOKEN}" --silent "${GITLAB_PROJECTS_URL}" | jq '.[] | select(.path_with_namespace=="'${TARGET_GITLAB_PROJECT_NAME}'") | .id'`
+#TARGET_GITLAB_PROJECT_ID=`curl --header "Private-Token:${PRIVATE_TOKEN}" --silent "${GITLAB_PROJECTS_URL}" | jq '.[] | select(.path_with_namespace=="'${GITLAB_PROJECT_NAME}'") | .id'`
 TARGET_GITLAB_PROJECT_ID=118
 ASSIGNEE_GITLAB_USER_ID=`curl --header "Private-Token:${PRIVATE_TOKEN}" --silent "${GITLAB_USERS_URL}?username=${ASSIGNEE_USER}" | jq '.[0].id'`
 AUTHOR_ID=`curl --header "Private-Token:${PRIVATE_TOKEN}" --silent "${GITLAB_USERS_URL}?username=${ACTUAL_USER_USERNAME}" | jq '.[0].id'`
-
-#if [[ "${ASSIGNEE_GITLAB_USERNAME}" == "${ACTUAL_USER_USERNAME}" ]]; then
-#  AUTHOR_ID="${ASSIGNEE_GITLAB_USER_ID}"
-#else
-#  AUTHOR_ID=`curl --header "Private-Token:${PRIVATE_TOKEN}" --silent "${GITLAB_USERS_URL}?username=${ACTUAL_USER_USERNAME}" | jq '.[0].id'`
-#fi
 
 if [[ "${AUTHOR_ID}" != null && "${ASSIGNEE_GITLAB_USER_ID}" ]]; then
   BODY="{

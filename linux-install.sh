@@ -66,9 +66,9 @@ logByStepAndState() {
   esac
   echo ">> [STATE] : SUCCESS STEPS = [${SUCCESS_RATE}/${TOTAL_STEPS}]..."
   if [[ ${SUCCESS_RATE} -eq ${TOTAL_STEPS}]]; then
-    echo "(Git-MR) => has been installed successfully. Enjoy 🎉"
+    echo "(Git-MR) => has been installed successfully. Enjoy 🎉🎉🎉"
     else
-      echo "Having troubling? Get help from : https://github.com/MostafaACHRAF/Git-MR"
+      echo "Having trouble? Get help from : https://github.com/MostafaACHRAF/Git-MR"
   fi
 }
 
