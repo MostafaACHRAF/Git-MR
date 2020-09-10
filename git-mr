@@ -1,14 +1,10 @@
 #!/bin/bash 
 
 params=()
-echo "number of arguments = ${#}"
 
 for arg in "$@"; do
-    echo "read param = $arg"
     params+=("$arg")
 done
-
-echo "Collected params = ${params[@]}"
 
 mode="default"
 sourceBranch=""
@@ -18,11 +14,7 @@ labels=""
 vcs=""
 mr_title=""
 
-echo "params size == ${#params[@]}"
-
 for i in "${!params[@]}"; do
-
-    echo "index = $i"
 
     case "${params[$i]}" in
         -i)
@@ -44,7 +36,6 @@ for i in "${!params[@]}"; do
         mr_title="$mr_title${params[$i+1]}"
         ;;
         --wip)
-        echo "title before = $mr_title"
         mr_title="wip:$mr_title"
         ;;
         --lab)
@@ -73,14 +64,6 @@ if [[ -z "${vcs}" ]];then
     echo "Error! Version Control System not found."
     exit 1; 
 fi
-
-echo "mode = ${mode}"
-echo "target branch = ${targetBranch}"
-echo "sourceBranch = ${sourceBranch}"
-echo "assignee user = ${assignee_user}"
-echo "labels = ${labels}"
-echo "vcs = ${vcs}"
-echo "title = ${mr_title}"
 
 if [[ "${vcs}" == "gitlab" ]]; then
     git lmr "${sourceBranch}" "${targetBranch}" "${assignee_user}" "${mr_title}" "${labels}"
