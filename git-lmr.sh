@@ -16,22 +16,44 @@
 
 #======= FUN CONFIG =======
 #example : "GITLAB-PROJECT-NAME/GITLAB-PROJECT-NAME"
-GITLAB_PROJECT_NAME=
 
 #example : "https://gitlab.orewa.sasa.com"
-GITLAB_URL=
 
-#example : "dZY4hpJwkdcdm2-0000"
-PRIVATE_TOKEN=
+params=()
+echo "Load gitlab configuration..."
+while read line; do
+  if [[ "${line}" =~ ^([^\#=\s]+)\s*=(.*) ]]; then
+    params+=("${BASH_REMATCH[1]}=${BASH_REMATCH[2]}")
+  fi
+done < ./gitlab.conf
 
-#example : "https://gitlab.orewa.sasa.com/api/v4/projects/"
-GITLAB_PROJECTS_URL="${GITLAB_URL}/api/v4/projects"
+getConf() {
+  # $1 : key
+  for param in "${params[@]}"; do
+    key=${param%%=*}
+    value=${param##*=}
+    if [[ "${1}" == "${key}" ]]; then
+      echo "${value}"
+      break;
+    fi
+  done
+}
 
-#example : "https://gitlab.orewa.sasa.com/api/v4/users"
-GITLAB_USERS_URL="${GITLAB_URL}/api/v4/users"
+GITLAB_PROJECT_NAME=$(getConf "GITLAB_PROJECT_NAME")
+GITLAB_PROJECT_ID=$(getConf "GITLAB_PROJECT_ID")
+GITLAB_URL=$(getConf "GITLAB_URL")
+PRIVATE_TOKEN=$(getConf "PRIVATE_TOKEN")
+GITLAB_PROJECTS_URL=$(getConf "GITLAB_PROJECTS_URL")
+GITLAB_USERS_URL=$(getConf "GITLAB_USERS_URL")
+GITLAB_MRS_URL=$(getConf "GITLAB_MRS_URL")
 
-#example : "https://gitlab.orewa.sasa.com/${GITLAB_PROJECT_NAME}/merge_requests/"
-GITLAB_MRS_URL="${GITLAB_URL}/${GITLAB_PROJECT_NAME}/merge_requests"
+echo "gitlab project name :  ${GITLAB_PROJECT_NAME}"
+echo "gitlab project id :  ${GITLAB_PROJECT_ID}"
+echo "gitlab url :  ${GITLAB_URL}"
+echo "private token : ${PRIVATE_TOKEN}"
+echo "gitlab projects url: ${GITLAB_PROJECTS_URL}"
+echo "gitlab users url: ${GITLAB_USERS_URL}"
+echo "gitlab mrs url: ${GITLAB_MRS_URL}"
 
 #======= PREPARE FUN PARAMS =======
 
