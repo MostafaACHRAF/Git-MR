@@ -44,6 +44,10 @@ for i in "${!params[@]}"; do
         --hub)
         vcs="github"
         ;;
+        --config)
+        ./git-mr-config.sh
+        exit 0
+        ;;
     esac
 done
 
@@ -69,5 +73,5 @@ if [[ "${vcs}" == "gitlab" ]]; then
     git lmr "${sourceBranch}" "${targetBranch}" "${assignee_user}" "${mr_title}" "${labels}"
     elif [[ "${vcs}" == "github" ]]; then
         # do call github mr method
-        echo "gthub"
+        echo "github"
 fi
