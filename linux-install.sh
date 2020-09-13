@@ -62,7 +62,7 @@ logByStepAndState() {
   esac
   printf "\n"
   echo "==> SUCCESS STEPS = [${SUCCESS_RATE}/${TOTAL_STEPS}]"
-  if [[ ${SUCCESS_RATE} -eq ${TOTAL_STEPS}]]; then
+  if [[ ${SUCCESS_RATE} -eq ${TOTAL_STEPS} ]]; then
     echo "Done ✔"
     echo "🎉🎉🎉 GIT-MR has been installed successfully. Enjoy 🎉🎉🎉"
     else
