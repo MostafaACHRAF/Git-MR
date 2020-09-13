@@ -6,7 +6,7 @@
 #@Version : 3.0
 #Developed will listening to piano music \(^_^)/
 
-VERSION=3.0
+VERSION=4.0
 echo "#########################################"
 echo "###/  __\##(_)#|_   _|##| \##/ |#|  _ \##"
 echo "##| |############| |####|  \/  |#| |#||##"
@@ -19,13 +19,13 @@ printf "V.${VERSION}\n\n"
 #give the scripts execution rights
 #then run the installer script
 #done!
-git clone https://github.com/MostafaACHRAF/Git-MR /bin && chmod +x /bin/Git-MR*.sh && .linux-install.sh
+# git clone https://github.com/MostafaACHRAF/Git-MR /bin && chmod +x /bin/Git-MR*.sh && .linux-install.sh
 
 
 
-SRC_PATH="/bin/gitMR"
-SRC_SCRIPT="git-lmr"
-SRC_SCRIPT_PATH="${SRC_PATH}/${SRC_SCRIPT}"
+SRC_PATH="/bin/GitMR"
+# SRC_SCRIPT="git-lmr"
+# SRC_SCRIPT_PATH="${SRC_PATH}/${SRC_SCRIPT}"
 PKG_MANAGER="NONO"
 ZSH_CONF_PATH=~/.zshrc
 BASH_CONF_PATH=~/.bashrc
@@ -34,41 +34,42 @@ ZSH_BASH_VAR_PATH_REGEX="PATH=\\\$PATH:${SRC_PATH//'/'/'\/'}"
 
 #@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@ UTILS FUNCTIONS @@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@
 SUCCESS_RATE=0
-TOTAL_STEPS=3
+TOTAL_STEPS=2
 logByStepAndState() {
   #${1} : STEP ; ${2} : STATE
+  remainingSteps=()
   case ${1} in
     "1" )
     if [[ "${2}" == true ]];then
-      echo ">> [Result] : [${SRC_PATH}] has been created successfully..."
-      echo ">> [Result] : [${SRC_SCRIPT_PATH}] has been copied successfully..."
+      echo "Done ✔"
       ((SUCCESS_RATE++))
       else
-        echo ">> [Error] : Something went worng will creating [${SRC_PATH}] or copying [${SRC_SCRIPT_PATH}] !"
+        echo "🚨 Error! Unsupported script shell. We support only ZSH and BASH shell scripts 🚨"
+        echo "👉 Add [${SRC_PATH}] to your varialbe PATH manually."
+        remainingSteps+=("Add [${SRC_PATH}] to your variable PATH.")
     fi
     ;;
     "2" )
-    if [[ "${2}" == true ]];then
-      echo ">> [Result] : The PATH environment variable of your shell has been updated successfully..."
-      ((SUCCESS_RATE++))
-      else
-        echo ">> [Warning] : Actually we support only ZSH and BASH shells! Update you PATH variable manually add : [${SRC_SCRIPT_PATH}] !"
-    fi
-    ;;
-    "3" )
     if [[ "${2}" == true  ]];then
-      echo ">> [Result] : jq (json parser) has been installed successfully..."
+      echo "Done ✔"
       ((SUCCESS_RATE++))
       else
-        printf "[Warning] : Sorry, We don't support your package manager yet!\nInstall 'jq' manually : [https://stedolan.github.io/jq/download/] !"
+        echo "🚨 Error! Looks like your package manager is not supported. 🚨"
+        echo "👉 You can install [jq] manually: https://stedolan.github.io/jq/download/"
+        remainingSteps+=("Install [jq] manually: https://stedolan.github.io/jq/download/")
     fi
     ;;
   esac
-  echo ">> [STATE] : SUCCESS STEPS = [${SUCCESS_RATE}/${TOTAL_STEPS}]..."
+  printf "\n"
+  echo "==> SUCCESS STEPS = [${SUCCESS_RATE}/${TOTAL_STEPS}]"
   if [[ ${SUCCESS_RATE} -eq ${TOTAL_STEPS}]]; then
-    echo "(Git-MR) => has been installed successfully. Enjoy 🎉🎉🎉"
+    echo "Done ✔"
+    echo "🎉🎉🎉 GIT-MR has been installed successfully. Enjoy 🎉🎉🎉"
     else
-      echo "Having trouble? Get help from : https://github.com/MostafaACHRAF/Git-MR"
+      echo "🚨 Installation not complete! 🚨"
+      echo "👉Please complete the remaining steps manually."
+      echo "👉For more informations visit our github repository: https://github/MostafaACHRAF/Git-MR "
+      echo "Remaining steps: [${remainingSteps[@]}]"
   fi
 }
 
@@ -77,57 +78,68 @@ appendStringToFile() {
   if [[ -f "${2}" ]]; then
     if ! grep "${1}" "${2}"; then
       echo "${1}" >> "${2}"
-      IS_STEP2_SUCCEEDED=true
+      IS_STEP1_SUCCEEDED=true
     fi
   fi
 }
 
-removeVariablePathFrom() {
-  #${1} : FILE_PATH
-  echo ">> [Delete] : The variable path from : [${1}]..."
-  sed -i 's/'"^${ZSH_BASH_VAR_PATH_REGEX}"'//g' "${1}"
-}
+# removeVariablePathFrom() {
+#   #${1} : FILE_PATH
+#   echo ">> [Delete] : The variable path from : [${1}]..."
+#   sed -i 's/'"^${ZSH_BASH_VAR_PATH_REGEX}"'//g' "${1}"
+# }
 
-configureOS4SrcScript() {
-  echo ">> [Configure] : Add the OS : 'LINUX' to [${SRC_SCRIPT}]..."
-  sudo sed -i -E 's/^(OS=).*/\1"LINUX"/g' "${SRC_SCRIPT_PATH}"
-}
+# configureOS4SrcScript() {
+#   echo "==> Add detected OS (Linux) to [${SRC_SCRIPT}]..."
+#   sudo sed -i -E 's/^(OS=).*/\1"LINUX"/g' "${SRC_SCRIPT_PATH}"
+# }
 
 #@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@ MAIN FUN @@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@
 IS_STEP1_SUCCEEDED=false
 IS_STEP2_SUCCEEDED=false
-IS_STEP3_SUCCEEDED=false
+
+echo "Git-MR installation..."
 
 #Copy ${SRC_SCRIPT} to ${SRC_PATH}
 if [[ -d "${SRC_PATH}" ]]; then
-  read -p ">> [Warning] : Auto.Git.Mr already installed ! would you like to reinstall it [y/n]?" RESPONSE
-  echo "RESPONSE = ${RESPONSE}"
-  if [[ "${RESPONSE}" == "y" || "${RESPONSE}" == "Y" ]]; then
-    sudo rm -rf "${SRC_PATH}"
-    removeVariablePathFrom "${ZSH_CONF_PATH}"
-    removeVariablePathFrom "${BASH_CONF_PATH}"
-    echo ">> [Result] : Auto.Git.Mr has been removed successfully..."
-  fi
+  echo "⚠️ GitMR is already installed ! ⚠️" 
+  echo "👉 If you want to uppdate it run: git mr --update"
+  echo "👉 If you want to uninstall it run: git mr --remove"
+  exit 1
+  # echo "RESPONSE = ${RESPONSE}"
+  # if [[ "${RESPONSE}" == "y" || "${RESPONSE}" == "Y" ]]; then
+  #   sudo rm -rf "${SRC_PATH}"
+  #   removeVariablePathFrom "${ZSH_CONF_PATH}"
+  #   removeVariablePathFrom "${BASH_CONF_PATH}"
+  #   echo ">> [Result] : Auto.Git.Mr has been removed successfully..."
+  # fi
 fi
 
-if [[ ! -d "${SRC_PATH}" ]];then
-  sudo mkdir "${SRC_PATH}"
-  sudo cp "${SRC_SCRIPT}" "${SRC_PATH}"
-  if [[ -f "${SRC_SCRIPT_PATH}" ]]; then
-    configureOS4SrcScript
-    IS_STEP1_SUCCEEDED=true
-  fi
-  logByStepAndState "1" "${IS_STEP1_SUCCEEDED}"
-fi
+# if [[ ! -d "${SRC_PATH}" ]];then
+#   sudo mkdir "${SRC_PATH}"
+#   sudo cp "${SRC_SCRIPT}" "${SRC_PATH}"
+#   if [[ -f "${SRC_SCRIPT_PATH}" ]]; then
+#     configureOS4SrcScript
+#     IS_STEP1_SUCCEEDED=true
+#   fi
+#   logByStepAndState "1" "${IS_STEP1_SUCCEEDED}"
+# fi
+
+# if [[ -d "${GITMR_DIR}" ]]; then
+#     configureOS4SrcScript
+#     if [[ $? == 0 ]]; then IS_STEP1_SUCCEEDED=true; fi
+#     logByStepAndState "1" "${IS_STEP1_SUCCEEDED}"
+# fi
 
 #Add ${SRC_PATH} to path [~/.zshrc, and ~/.bashrc]
 #ToDo...for Other SHELLs [$KSH_VERSION,$FCEDIT,$PS3]
+echo "==> Update PATH variable..."
 appendStringToFile "${ZSH_BASH_VAR_PATH}" "${ZSH_CONF_PATH}"
 appendStringToFile "${ZSH_BASH_VAR_PATH}" "${BASH_CONF_PATH}"
-logByStepAndState "2" "${IS_STEP2_SUCCEEDED}"
+logByStepAndState "1" "${IS_STEP1_SUCCEEDED}"
 
 #Download and install jq on [debian-base, and other distros...]
-IS_STEP3_SUCCEEDED=true
+IS_STEP2_SUCCEEDED=true
 declare -A OS_PKG_MANAGERS;
 OS_PKG_MANAGERS[/etc/redhat-release]=dnf
 OS_PKG_MANAGERS[/etc/arch-release]=pacman
@@ -155,6 +167,6 @@ case ${MY_PKG_MANAGER} in
   sudo apt-get install jq
   ;;
   * )
-  IS_STEP3_SUCCEEDED=false
+  IS_STEP2_SUCCEEDED=false
 esac
-logByStepAndState "3" "${IS_STEP3_SUCCEEDED}"
+logByStepAndState "2" "${IS_STEP2_SUCCEEDED}"

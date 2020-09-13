@@ -58,6 +58,6 @@ if [[ -n "${GITLAB_URL}" && -n "${GITLAB_PROJECT_NAME}" && -n "${PRIVATE_TOKEN}"
   exit 0
 fi
 
-echo "Gitlab configuration has failed! Because of INVALID params.🚨"
+echo "🚨 Gitlab configuration has failed! Because of INVALID params. 🚨"
 echo "All params are required.🧐"
 exit 1
