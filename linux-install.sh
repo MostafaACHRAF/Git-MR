@@ -101,11 +101,11 @@ IS_STEP2_SUCCEEDED=false
 echo "Git-MR installation..."
 
 #Copy ${SRC_SCRIPT} to ${SRC_PATH}
-if [[ -d "${SRC_PATH}" ]]; then
-  echo "⚠️ GitMR is already installed ! ⚠️" 
-  echo "👉 If you want to uppdate it run: git mr --update"
-  echo "👉 If you want to uninstall it run: git mr --remove"
-  exit 1
+# if [[ -d "${SRC_PATH}" ]]; then
+  # echo "⚠️ GitMR is already installed ! ⚠️" 
+  # echo "👉 If you want to uppdate it run: git mr --update"
+  # echo "👉 If you want to uninstall it run: git mr --remove"
+  # exit 1
   # echo "RESPONSE = ${RESPONSE}"
   # if [[ "${RESPONSE}" == "y" || "${RESPONSE}" == "Y" ]]; then
   #   sudo rm -rf "${SRC_PATH}"
@@ -113,7 +113,7 @@ if [[ -d "${SRC_PATH}" ]]; then
   #   removeVariablePathFrom "${BASH_CONF_PATH}"
   #   echo ">> [Result] : Auto.Git.Mr has been removed successfully..."
   # fi
-fi
+# fi
 
 # if [[ ! -d "${SRC_PATH}" ]];then
 #   sudo mkdir "${SRC_PATH}"
