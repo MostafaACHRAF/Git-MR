@@ -62,15 +62,6 @@ logByStepAndState() {
   esac
   printf "\n"
   echo "==> SUCCESS STEPS = [${SUCCESS_RATE}/${TOTAL_STEPS}]"
-  if [[ ${SUCCESS_RATE} -eq ${TOTAL_STEPS} ]]; then
-    echo "Done ✔"
-    echo "🎉🎉🎉 GIT-MR has been installed successfully. Enjoy 🎉🎉🎉"
-    else
-      echo "🚨 Installation not complete! 🚨"
-      echo "👉Please complete the remaining steps manually."
-      echo "👉For more informations visit our github repository: https://github/MostafaACHRAF/Git-MR "
-      echo "Remaining steps: [${remainingSteps[@]}]"
-  fi
 }
 
 appendStringToFile() {
@@ -170,3 +161,14 @@ case ${MY_PKG_MANAGER} in
   IS_STEP2_SUCCEEDED=false
 esac
 logByStepAndState "2" "${IS_STEP2_SUCCEEDED}"
+
+
+if [[ ${SUCCESS_RATE} -eq ${TOTAL_STEPS} ]]; then
+  echo "Done ✔"
+  echo "🎉🎉🎉 GIT-MR has been installed successfully. Enjoy 🎉🎉🎉"
+  else
+    echo "🚨 Installation not complete! 🚨"
+    echo "👉Please complete the remaining steps manually."
+    echo "👉For more informations visit our github repository: https://github/MostafaACHRAF/Git-MR "
+    echo "Remaining steps: [${remainingSteps[@]}]"
+fi
