@@ -2,8 +2,8 @@
 
 #@Author : Mostafa ASHARF
 #@Date (en) : 05/04/19
-#@Last update (en) : 06/09/19
-#@Version : 3.0
+#@Last update (en) : 15/09/20
+#@Version : 4.0
 #Developed will listening to piano music \(^_^)/
 
 VERSION=4.0
@@ -15,29 +15,20 @@ echo "##\_____|##|_|###|_|#()#|_|##|_|#|_|#|_\#"
 echo "#########################################"
 printf "V.${VERSION}\n\n"
 #@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@ CONFIG @@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@
-#clone the repository to /bin
-#give the scripts execution rights
-#then run the installer script
-#done!
-# git clone https://github.com/MostafaACHRAF/Git-MR /bin && chmod +x /bin/Git-MR*.sh && .linux-install.sh
-
-
-
 SRC_PATH="/bin/GitMR"
-# SRC_SCRIPT="git-lmr"
-# SRC_SCRIPT_PATH="${SRC_PATH}/${SRC_SCRIPT}"
 PKG_MANAGER="NONO"
 ZSH_CONF_PATH=~/.zshrc
 BASH_CONF_PATH=~/.bashrc
 ZSH_BASH_VAR_PATH="PATH=\$PATH:${SRC_PATH}"
-ZSH_BASH_VAR_PATH_REGEX="PATH=\\\$PATH:${SRC_PATH//'/'/'\/'}"
+# ZSH_BASH_VAR_PATH_REGEX="PATH=\\\$PATH:${SRC_PATH//'/'/'\/'}"
 
 #@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@ UTILS FUNCTIONS @@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@
 SUCCESS_RATE=0
 TOTAL_STEPS=2
+remainingSteps=()
+
 logByStepAndState() {
   #${1} : STEP ; ${2} : STATE
-  remainingSteps=()
   case ${1} in
     "1" )
     if [[ "${2}" == true ]];then
@@ -54,14 +45,13 @@ logByStepAndState() {
       echo "Done ✔"
       ((SUCCESS_RATE++))
       else
-        echo "🚨 Error! Looks like your package manager is not supported. 🚨"
+        echo "🚨 Error! Looks like your package manager is not supported, or something went wrong will installing [jq]. 🚨"
         echo "👉 You can install [jq] manually: https://stedolan.github.io/jq/download/"
         remainingSteps+=("Install [jq] manually: https://stedolan.github.io/jq/download/")
     fi
     ;;
   esac
-  printf "\n"
-  echo "==> SUCCESS STEPS = [${SUCCESS_RATE}/${TOTAL_STEPS}]"
+  echo "SUCCESS STEPS = [${SUCCESS_RATE}/${TOTAL_STEPS}]"
 }
 
 appendStringToFile() {
@@ -69,8 +59,8 @@ appendStringToFile() {
   if [[ -f "${2}" ]]; then
     if ! grep "${1}" "${2}"; then
       echo "${1}" >> "${2}"
-      IS_STEP1_SUCCEEDED=true
     fi
+    if [[ $? == 0 ]]; then IS_STEP1_SUCCEEDED=true; fi
   fi
 }
 
@@ -91,37 +81,6 @@ IS_STEP2_SUCCEEDED=false
 
 echo "Git-MR installation..."
 
-#Copy ${SRC_SCRIPT} to ${SRC_PATH}
-# if [[ -d "${SRC_PATH}" ]]; then
-  # echo "⚠️ GitMR is already installed ! ⚠️" 
-  # echo "👉 If you want to uppdate it run: git mr --update"
-  # echo "👉 If you want to uninstall it run: git mr --remove"
-  # exit 1
-  # echo "RESPONSE = ${RESPONSE}"
-  # if [[ "${RESPONSE}" == "y" || "${RESPONSE}" == "Y" ]]; then
-  #   sudo rm -rf "${SRC_PATH}"
-  #   removeVariablePathFrom "${ZSH_CONF_PATH}"
-  #   removeVariablePathFrom "${BASH_CONF_PATH}"
-  #   echo ">> [Result] : Auto.Git.Mr has been removed successfully..."
-  # fi
-# fi
-
-# if [[ ! -d "${SRC_PATH}" ]];then
-#   sudo mkdir "${SRC_PATH}"
-#   sudo cp "${SRC_SCRIPT}" "${SRC_PATH}"
-#   if [[ -f "${SRC_SCRIPT_PATH}" ]]; then
-#     configureOS4SrcScript
-#     IS_STEP1_SUCCEEDED=true
-#   fi
-#   logByStepAndState "1" "${IS_STEP1_SUCCEEDED}"
-# fi
-
-# if [[ -d "${GITMR_DIR}" ]]; then
-#     configureOS4SrcScript
-#     if [[ $? == 0 ]]; then IS_STEP1_SUCCEEDED=true; fi
-#     logByStepAndState "1" "${IS_STEP1_SUCCEEDED}"
-# fi
-
 #Add ${SRC_PATH} to path [~/.zshrc, and ~/.bashrc]
 #ToDo...for Other SHELLs [$KSH_VERSION,$FCEDIT,$PS3]
 echo "==> Update PATH variable..."
@@ -131,38 +90,25 @@ logByStepAndState "1" "${IS_STEP1_SUCCEEDED}"
 
 #Download and install jq on [debian-base, and other distros...]
 IS_STEP2_SUCCEEDED=true
-declare -A OS_PKG_MANAGERS;
-OS_PKG_MANAGERS[/etc/redhat-release]=dnf
-OS_PKG_MANAGERS[/etc/arch-release]=pacman
-OS_PKG_MANAGERS[/etc/gentoo-release]=emerge
-OS_PKG_MANAGERS[/etc/SuSE-release]=zypper
-OS_PKG_MANAGERS[/etc/debian_version]=apt-get
+PKG_MANAGERS=("/etc/redhat-release:dnf" "/etc/arch-release:pacman" "/etc/gentooo-release:emerge" "/etc/SuSE-release:zypper" "/etc/debian_version:apt-get")
 
-for OS_BASE in ${!OS_PKG_MANAGERS[@]};do
-   if  [[ -f "${OS_BASE}" ]];then
-      MY_PKG_MANAGER="${OS_PKG_MANAGERS[${OS_BASE}]}"
+for pkgManager in "${PKG_MANAGERS[@]}"; do
+   if [[ -f "${pkgManager%%:*}" ]]; then
+    userId=$(id -u)
+    cmd0=$(if [[ ${userId} -eq 0 ]]; then echo ""; else echo "sudo "; fi)
+    cmd1=$(if [[ ${pkgManager##*:} == "pacman" ]]; then echo "-S"; else echo "install"; fi)
+    jqInstaller="${cmd0}${pkgManager##*:} ${cmd1} jq"
+    ${jqInstaller}
+    continue
    fi
 done
 
-case ${MY_PKG_MANAGER} in
-  "dnf" )
-  sudo dnf install jq
-  ;;
-  "pacman" )
-  sudo pacman -Sy jq
-  ;;
-  "zypper" )
-  sudo zypper install jq
-  ;;
-  "apt-get" )
-  sudo apt-get install jq
-  ;;
-  * )
-  IS_STEP2_SUCCEEDED=false
-esac
+jq --version
+if [[ $? == 1 ]]; then IS_STEP2_SUCCEEDED=false; fi
+
 logByStepAndState "2" "${IS_STEP2_SUCCEEDED}"
 
-
+printf "\n"
 if [[ ${SUCCESS_RATE} -eq ${TOTAL_STEPS} ]]; then
   echo "Done ✔"
   echo "🎉🎉🎉 GIT-MR has been installed successfully. Enjoy 🎉🎉🎉"
