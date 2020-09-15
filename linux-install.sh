@@ -103,7 +103,7 @@ for pkgManager in "${PKG_MANAGERS[@]}"; do
 done
 
 jq --version
-if [[ $? == 1 ]]; then IS_STEP2_SUCCEEDED=false; fi
+if [[ $? != 0 ]]; then IS_STEP2_SUCCEEDED=false; fi
 
 logByStepAndState "2" "${IS_STEP2_SUCCEEDED}"
 
