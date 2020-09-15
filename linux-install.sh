@@ -32,26 +32,22 @@ logByStepAndState() {
   case ${1} in
     "1" )
     if [[ "${2}" == true ]];then
-      echo "Done ✔"
       ((SUCCESS_RATE++))
       else
         echo "🚨 Error! Unsupported script shell. We support only ZSH and BASH shell scripts 🚨"
-        echo "👉 Add [${SRC_PATH}] to your varialbe PATH manually."
-        remainingSteps+=("Add [${SRC_PATH}] to your variable PATH.")
+        remainingSteps+=("👉 Add [${SRC_PATH}] to your variable PATH.")
     fi
     ;;
     "2" )
     if [[ "${2}" == true  ]];then
-      echo "Done ✔"
       ((SUCCESS_RATE++))
       else
         echo "🚨 Error! Looks like your package manager is not supported, or something went wrong will installing [jq]. 🚨"
-        echo "👉 You can install [jq] manually: https://stedolan.github.io/jq/download/"
-        remainingSteps+=("Install [jq] manually: https://stedolan.github.io/jq/download/")
+        remainingSteps+=("👉 Install [jq] manually: https://stedolan.github.io/jq/download/")
     fi
     ;;
   esac
-  echo "SUCCESS STEPS = [${SUCCESS_RATE}/${TOTAL_STEPS}]"
+  echo "Step(${SUCCESS_RATE}/${TOTAL_STEPS}) Done ✔"
 }
 
 appendStringToFile() {
@@ -83,6 +79,7 @@ echo "Git-MR installation..."
 
 #Add ${SRC_PATH} to path [~/.zshrc, and ~/.bashrc]
 #ToDo...for Other SHELLs [$KSH_VERSION,$FCEDIT,$PS3]
+printf "\n"
 echo "==> Update PATH variable..."
 appendStringToFile "${ZSH_BASH_VAR_PATH}" "${ZSH_CONF_PATH}"
 appendStringToFile "${ZSH_BASH_VAR_PATH}" "${BASH_CONF_PATH}"
@@ -98,8 +95,10 @@ for pkgManager in "${PKG_MANAGERS[@]}"; do
     cmd0=$(if [[ ${userId} -eq 0 ]]; then echo ""; else echo "sudo "; fi)
     cmd1=$(if [[ ${pkgManager##*:} == "pacman" ]]; then echo "-S"; else echo "install"; fi)
     jqInstaller="${cmd0}${pkgManager##*:} ${cmd1} jq"
+    printf "\n"
+    echo "==> Run ${jqInstaller}..."
     ${jqInstaller}
-    continue
+    break
    fi
 done
 
@@ -110,7 +109,6 @@ logByStepAndState "2" "${IS_STEP2_SUCCEEDED}"
 
 printf "\n"
 if [[ ${SUCCESS_RATE} -eq ${TOTAL_STEPS} ]]; then
-  echo "Done ✔"
   echo "🎉🎉🎉 GIT-MR has been installed successfully. Enjoy 🎉🎉🎉"
   else
     echo "🚨 Installation not complete! 🚨"
