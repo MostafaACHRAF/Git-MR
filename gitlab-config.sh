@@ -19,9 +19,9 @@ if [[ ! -f "${configFile}" ]]; then
   echo "GITLAB_PROJECT_ID=" >> "${configFile}"
   echo "GITLAB_URL=" >> "${configFile}"
   echo "PRIVATE_TOKEN=" >> "${configFile}"
-  echo "GITLAB_PROJECTS_URL=\"${GITLAB_URL}/api/v4/projects\"" >> "${configFile}"
-  echo "GITLAB_USERS_URL=\"${GITLAB_URL}/api/v4/users\"" >> "${configFile}"
-  echo "GITLAB_MRS_URL=\"${GITLAB_URL}/${GITLAB_PROJECT_NAME}/merge_requests\"" >> "${configFile}"
+  echo "GITLAB_PROJECTS_URL=${GITLAB_URL}/api/v4/projects" >> "${configFile}"
+  echo "GITLAB_USERS_URL=${GITLAB_URL}/api/v4/users" >> "${configFile}"
+  echo "GITLAB_MRS_URL=${GITLAB_URL}/${GITLAB_PROJECT_NAME}/merge_requests" >> "${configFile}"
   echo "#======= DO NOT THIS LINE. THIS LINE SHOULD BE THE LAST ONE !!!!" >> "${configFile}"
   if [[ $? == 1 ]]; then echo "🚨 Erro! Something went wrong will generating config file! 🚨"; exit 1; else echo "Done ✔"; fi
 fi
