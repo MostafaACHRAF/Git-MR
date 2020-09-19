@@ -25,7 +25,7 @@ fi
 #======= FUN CONFIG =======
 
 params=()
-echo "Load gitlab configuration..."
+echo "Load gitlab configuration [${configFile}]..."
 while read line; do
   if [[ "${line}" =~ ^([^\#=\s]+)\s*=(.*) ]]; then
     params+=("${BASH_REMATCH[1]}=${BASH_REMATCH[2]}")
@@ -72,7 +72,7 @@ DEFAULT_SOURCE_BRANCH=$(git rev-parse --abbrev-ref HEAD)
 DEFAULT_MR_TITLE=$(git log --pretty=format:%s HEAD | head -n 1)
 ACTUAL_USER_EMAIL=$(git config user.email)
 
-if [[ "${ACTUAL_USER_EMAIL}" ==  null ]]; then
+if [[ -z "${ACTUAL_USER_EMAIL}" ]]; then
   read -p "> [Your Gitlab email]:" ACTUAL_USER_EMAIL
 fi
 
