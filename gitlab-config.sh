@@ -13,7 +13,7 @@ configFile="${1}"
 
 
 if [[ ! -f "${configFile}" ]]; then
-  echo "==> Generate new config file..."
+  echo "==> Generate new config file [${configFile}]..."
   echo "#========================= Gitlab integration configuration =========================" >> "${configFile}"
   echo "GITLAB_PROJECT_NAME=" >> "${configFile}"
   echo "GITLAB_PROJECT_ID=" >> "${configFile}"
