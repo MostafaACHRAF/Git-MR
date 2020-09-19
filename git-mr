@@ -16,7 +16,7 @@ mr_title=""
 
 isDockerContainer=$(awk -F/ '$2 == "docker" {print "true"; exit 0}' /proc/1/cgroup )
 
-if [[ isDockerContainer == "true" ]]; then
+if [[ "${isDockerContainer}" == "true" ]]; then
   configDir=/tmp
   else
     configDir=/bin/GitMR
@@ -60,11 +60,11 @@ for i in "${!params[@]}"; do
 done
 
 if [[ "${mode}" == "interactive" ]];then
-    read -p ">> [Source branch] : " sourceBranch
-    read -p ">> [Target branch] : " targetBranch
-    read -p ">> [ASSIGN TO (username)] : " assignee_user
-    read -p ">> [Title] : " mr_title
-    read -p ">> [LABELS (separator=,)] : " labels
+    read -p "> [Source branch] : " sourceBranch
+    read -p "> [Target branch] : " targetBranch
+    read -p "> [ASSIGN TO (username)] : " assignee_user
+    read -p "> [Title] : " mr_title
+    read -p "> [LABELS (separator=,)] : " labels
 fi
 
 if [[ -z "${targetBranch}" ]]; then
