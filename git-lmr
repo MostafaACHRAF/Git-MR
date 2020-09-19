@@ -14,11 +14,11 @@
 #labels : <commit_label(list)[optional;default=java;separator=,]>
 #git lmr -i : interactive mode, this helps you fill the params in an interactive way, (question => response)
 
-configFile=./gitlab.conf
+configFile="${6}"
 
 if [[ ! -f "${configFile}" || ! -z "${configFile}" ]]; then
   echo "⚠️ Gitlab integration not configured yet! ⚠️"
-  ./gitlab-config.sh
+  sh /bin/GitMR/gitlab-config.sh "${configFile}"
 fi
 
 
@@ -30,7 +30,7 @@ while read line; do
   if [[ "${line}" =~ ^([^\#=\s]+)\s*=(.*) ]]; then
     params+=("${BASH_REMATCH[1]}=${BASH_REMATCH[2]}")
   fi
-done < ./gitlab.conf
+done < "${configFile}"
 
 getConf() {
   # $1 : key

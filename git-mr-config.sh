@@ -10,15 +10,17 @@ TERMINAL=$(tty)
 
 option=$(zenity --title="${TITLE}" --text="${MENU}" --list --column="Options" "${OPTIONS[@]}"); 
 
+configDir="${1}"
 
 if [[ -n "${option}" ]]; then
     echo "option = $option"
     case "${option}" in
         Gitlab)
-        ./gitlab-config.sh
+        /bin/GitMR/gitlab-config.sh "${configDir}/gitlab.conf"
         ;;
         Github)
-        echo "congigure github..."
+        echo "configure github..."
+        echo "call  /bin/GitMR/github-config.sh \"${configDir}/github.conf\""
         ;;
     esac
 fi  

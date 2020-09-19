@@ -8,7 +8,9 @@ read -p "> [Gitlab project id]: " GITLAB_PROJECT_ID
 read -p "> [Private token]: " PRIVATE_TOKEN
 printf "\n"
 
-configFile=./gitlab.conf
+# ${1} : config file path
+configFile="${1}"
+
 
 if [[ ! -f "${configFile}" ]]; then
   echo "==> Generate new config file..."

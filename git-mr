@@ -14,6 +14,14 @@ labels=""
 vcs=""
 mr_title=""
 
+isDockerContainer=$(awk -F/ '$2 == "docker" {print "true"; exit 0}' /proc/1/cgroup )
+
+if [[ isDockerContainer == "true" ]]; then
+  configDir=/tmp
+  else
+    configDir=/bin/GitMR
+fi
+
 for i in "${!params[@]}"; do
 
     case "${params[$i]}" in
@@ -45,7 +53,7 @@ for i in "${!params[@]}"; do
         vcs="github"
         ;;
         --config)
-        ./git-mr-config.sh
+        sh /bin/GitMR/git-mr-config.sh "${configDir}"
         exit 0
         ;;
     esac
@@ -70,8 +78,8 @@ if [[ -z "${vcs}" ]];then
 fi
 
 if [[ "${vcs}" == "gitlab" ]]; then
-    git lmr "${sourceBranch}" "${targetBranch}" "${assignee_user}" "${mr_title}" "${labels}"
+    git lmr "${sourceBranch}" "${targetBranch}" "${assignee_user}" "${mr_title}" "${labels}" "${configDir}/gitlab.conf"
     elif [[ "${vcs}" == "github" ]]; then
         # do call github mr method
-        echo "github"
+        echo "github ${confDir}/github.conf"
 fi
