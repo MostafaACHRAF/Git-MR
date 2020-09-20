@@ -17,7 +17,7 @@ mr_title=""
 isDockerContainer=$(awk -F/ '$2 == "docker" {print "true"; exit 0}' /proc/1/cgroup )
 
 if [[ "${isDockerContainer}" == "true" ]]; then
-  configDir=/tmp
+  configDir=/config
   else
     configDir=/bin/GitMR
 fi
@@ -68,12 +68,12 @@ if [[ "${mode}" == "interactive" ]];then
 fi
 
 if [[ -z "${targetBranch}" ]]; then
-    echo "Error! Target branch not found."
+    echo "🚨 Error! Target branch not found. 🚨"
     exit 1;
 fi
 
 if [[ -z "${vcs}" ]];then
-    echo "Error! Version Control System not found."
+    echo "🚨 Error! Version Control System not found. 🚨"
     exit 1; 
 fi
 

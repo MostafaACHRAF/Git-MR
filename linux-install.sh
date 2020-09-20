@@ -116,3 +116,4 @@ if [[ ${SUCCESS_RATE} -eq ${TOTAL_STEPS} ]]; then
     echo "👉For more informations visit our github repository: https://github/MostafaACHRAF/Git-MR "
     echo "Remaining steps: [${remainingSteps[@]}]"
 fi
+printf "\n"

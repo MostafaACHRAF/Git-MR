@@ -23,7 +23,7 @@ if [[ ! -f "${configFile}" ]]; then
   echo "GITLAB_USERS_URL=${GITLAB_URL}/api/v4/users" >> "${configFile}"
   echo "GITLAB_MRS_URL=${GITLAB_URL}/${GITLAB_PROJECT_NAME}/merge_requests" >> "${configFile}"
   echo "#======= DO NOT THIS LINE. THIS LINE SHOULD BE THE LAST ONE !!!!" >> "${configFile}"
-  if [[ $? == 1 ]]; then echo "🚨 Erro! Something went wrong will generating config file! 🚨"; exit 1; else echo "Done ✔"; fi
+  if [[ $? == 1 ]]; then printf "🚨 Erro! Something went wrong will generating config file! 🚨\n"; exit 1; else echo "Done ✔"; fi
 fi
 
 
@@ -53,13 +53,12 @@ if [[ -n "${GITLAB_URL}" && -n "${GITLAB_PROJECT_NAME}" && -n "${PRIVATE_TOKEN}"
   sed -i -E 's/'"^(PRIVATE_TOKEN=).*"'/\1'"${PRIVATE_TOKEN}"'/g' "${configFile}"
   if [[ $? == 1 ]]; then exit 1; else echo "Done ✔️"; fi
     
-  printf "\n"
-  echo "All done! GitMR is ready 🔥🔥🔥"
+  printf "\nAll done! GitMR is ready 🔥🔥🔥"
   echo "👉 You need help? Type git mr --help" 
-  echo "👉 Or visit our repository: https://github.com/MostafaACHRAF/Git-MR"
+  printf "👉 Or visit our repository: https://github.com/MostafaACHRAF/Git-MR\n"
   exit 0
 fi
 
-echo "🚨 Gitlab configuration has failed! Because of INVALID params. 🚨"
-echo "All params are required.🧐"
+printf "\n🚨 Gitlab configuration has failed! Because of INVALID params. 🚨"
+printf "All params are required.🧐\n"
 exit 1

@@ -1,5 +1,6 @@
 #!/bin/bash
 
+# TODO : create menu list using nodeJs <3
 WIDTH=30
 HEIGHT=30
 CHOICE_HEIGHT=4
