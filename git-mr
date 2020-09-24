@@ -78,7 +78,7 @@ if [[ -z "${vcs}" ]];then
 fi
 
 if [[ "${vcs}" == "gitlab" ]]; then
-    git lmr "${sourceBranch}" "${targetBranch}" "${assignee_user}" "${mr_title}" "${labels}" "${configDir}/gitlab.conf"
+    sh /bin/GitMR/git-lmr "${sourceBranch}" "${targetBranch}" "${assignee_user}" "${mr_title}" "${labels}" "${configDir}/gitlab.conf"
     elif [[ "${vcs}" == "github" ]]; then
         # do call github mr method
         echo "github ${confDir}/github.conf"
