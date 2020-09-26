@@ -9,7 +9,7 @@ Git-MR is a git command to create git merge requests from the terminal.<br/>
 It makes you a more productive developer.<br/>
 Git-MR is a fast, safe, and fun way to create git merge request.<br/>
 
-* The actual version support Gitlab only. Support for Github will be coming in the next release.
+* The actual version supports Gitlab only. Support for Github will be coming in the next release.
 * This tool is created for linux/unix operating systems. Support for windows will be coming in the next release.
 
 > The idea behind Git-MR, is that you don't have to leave your terminal to submit your merge requests.
@@ -72,12 +72,12 @@ your_alias --lab -t target_branch -s source_branch -a assignee_user -l labels -m
 ---
 
 # Comming features
-> Add support for github ==> in progress
-> Update linux installer to a faster and more stable version ==> done
-> Create windows installer ==> not yet
-> Create a bash command to uninstall Git-MR on linux ==> in progress
-> Create a bash command to update the config file, rather than updating it manually by the user ==> done
-> Create Git-MR logo ==> done
-> Cronjob to notify the users when a new release come out
-> NodeJs menu list ==> in progress
-> Support for multiple projects at once (no need to do: git mr --config to switch between projects) ==> not yet
+> Add support for github ==> in progress<br/>
+> Update linux installer to a faster and more stable version ==> done<br/>
+> Create windows installer ==> not yet<br/>
+> Create a bash command to uninstall Git-MR on linux ==> in progress<br/>
+> Create a bash command to update the config file, rather than updating it manually by the user ==> done<br/>
+> Create Git-MR logo ==> done<br/>
+> Cronjob to notify the users when a new release come out<br/>
+> NodeJs menu list ==> in progress<br/>
+> Support for multiple projects at once (no need to do: git mr --config to switch between projects) ==> not yet<br/>
