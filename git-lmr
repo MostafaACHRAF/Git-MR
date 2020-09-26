@@ -17,12 +17,12 @@
 configFile="${6}"
 
 if [[ ! -f "${configFile}" || -z "${configFile}" ]]; then
-  printf "\n⚠️ Gitlab integration not configured yet! ⚠️"
+  printf "\n⚠️ Gitlab integration not configured yet! ⚠️\n"
   sh /bin/GitMR/gitlab-config.sh "${configFile}"
 fi
 
 params=()
-echo "==> Load gitlab configuration from: [${configFile}]..."
+printf "\n==> Load gitlab configuration from: [${configFile}]...\n"
 while read line; do
   if [[ "${line}" =~ ^([^\#=\s]+)\s*=(.*) ]]; then
     params+=("${BASH_REMATCH[1]}=${BASH_REMATCH[2]}")
@@ -60,10 +60,13 @@ LABELS="${5}"
 DEFAULT_SOURCE_BRANCH=$(git rev-parse --abbrev-ref HEAD)
 DEFAULT_MR_TITLE=$(git log --pretty=format:%s HEAD | head -n 1)
 ACTUAL_USER_EMAIL=$(git config user.email)
-echo "Actual user email : ${ACTUAL_USER_EMAIL}"
 
 if [[ -z "${ACTUAL_USER_EMAIL}" ]]; then
-  read -p "> [Your Gitlab email]:" ACTUAL_USER_EMAIL
+  ACTUAL_USER_EMAIL=$(getConf "USER_EMAIL")
+  if [[ -z "${ACTUAL_USER_EMAIL}" ]]; then
+    read -p "> [Enter your Gitlab email]:" ACTUAL_USER_EMAIL
+    printf "USER_EMAIL=${ACTUAL_USER_EMAIL}\n" >> "${configFile}"
+  fi
 fi
 
 ACTUAL_USER_USERNAME=${ACTUAL_USER_EMAIL%%@*}
