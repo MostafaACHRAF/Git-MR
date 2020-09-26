@@ -1,4 +1,4 @@
-![gitmr-logo](./gitmr-logo.png =200x200)
+![gitmr-logo](./gitmr-logo.png)
 
 Give usa star!🌟
 
