@@ -53,7 +53,7 @@ if [[ -n "${GITLAB_URL}" && -n "${GITLAB_PROJECT_NAME}" && -n "${PRIVATE_TOKEN}"
   sed -i -E 's/'"^(PRIVATE_TOKEN=).*"'/\1'"${PRIVATE_TOKEN}"'/g' "${configFile}"
   if [[ $? == 1 ]]; then exit 1; else echo "Done ✔️"; fi
     
-  printf "\nAll done! GitMR is ready 🔥🔥🔥"
+  printf "\nAll done! GitMR is ready 🔥🔥🔥\n"
   echo "👉 You need help? Type git mr --help" 
   printf "👉 Or visit our repository: https://github.com/MostafaACHRAF/Git-MR\n"
   exit 0
