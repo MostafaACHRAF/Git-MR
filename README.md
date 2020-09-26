@@ -1,6 +1,6 @@
 ![gitmr-logo](./gitmr-logo-200x200.png)
 
-Give usa star!🌟
+Give us a star!🌟
 
 ---
 
@@ -81,3 +81,5 @@ your_alias --lab -t target_branch -s source_branch -a assignee_user -l labels -m
 > Cronjob to notify the users when a new release come out<br/>
 > NodeJs menu list ==> in progress<br/>
 > Support for multiple projects at once (no need to do: git mr --config to switch between projects) ==> not yet<br/>
+
+<strong>GitMR project - 2020</strong>
