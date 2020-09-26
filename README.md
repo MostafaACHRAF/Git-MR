@@ -1,46 +1,83 @@
+![gitmr-logo](./gitmr-logo.png =200x200)
+
+Give usa star!🌟
+
+---
+
 # What it is Git-MR?
-Git-MR is a git command to create git merge requests from the terminal.
-The actual version support Gitlab only, we will support Github as well, in the near future.
+Git-MR is a git command to create git merge requests from the terminal.<br/>
+It makes you a more productive developer.<br/>
+Git-MR is a fast, safe, and fun way to create git merge request.<br/>
 
-This tool is available on all Linux distributions. We may support windows in the futrure releases.
+* The actual version support Gitlab only. Support for Github will be coming in the next release.
+* This tool is created for linux/unix operating systems. Support for windows will be coming in the next release.
 
-> The idea behind Git-MR, is that you don't have to leave your terminal to submit your merge requests, everything can be done via the terminal.
+> The idea behind Git-MR, is that you don't have to leave your terminal to submit your merge requests.
+> Everything can be done from the terminal ❤️.
 
 ---
 
 # How to install it?
-Copy page this command to install GitMR
+Copy paste this command into your terminal:<br/>
+```
+sudo git clone https://github.com/MostafaACHRAF/Git-MR /bin/GitMR && chmod +x /bin/GitMR/*.sh && chmod +x /bin/GitMR/git-* && .linux-install.sh
+```
+---
 
-> $ sudo git clone https://github.com/MostafaACHRAF/Git-MR /bin/GitMR && sudo chmod +x /bin/GitMR/*.sh && .linux-install.sh
+Or you can try it using docker:<br/>
+```
+docker run --rm -it --name gitmrc -v $PWD:/workspace -v ~/Documents:/config -t gitmr
+```
+* ~/Documents is where gitmr will store and read it's configuration.
+* The workspace folder represent your gitlab/github project folder. By default it takes the actual folder as the workspace, but you can change it.
 
 ---
 
-# How it works?
+Or you can create an alisa in your ~/.bashrc, ~/.zshrc or whatever shell you use:<br/>
+```
+gitmr() {...}
+```
 
-*Now, the terminal, and cmd will recognize git lmr as a git command.\
-*The command is :\
-*git lmr <remote_branch [default=dev]>, if you didn't type anything after 'lmr', then a new MR will be created in (DEV or master) branch\
-*Then the command will ask you two questions :\
-*1) assignee_id : (type the id of the person who will accept your MR, by default the MR will be assigned to you)\
-*2) labels : (give the identifiers of some labels separated by ','). Example : java,bugFixing,test\
-*The title of the last commit is the title of your merge request\
-*After that you will have a confirmation message, answer with : [y/n]\
-*If everything works fine, you will be redirected automatically to your gitlab account to view your merge request details\
+---
 
+# How to use it?
+After installing the tool on your machine. You can use 'git mr' as a terminal command.<br/>
+Or start a new docker container and enjoy gitmr like this:<br/>
 
+### On terminal:
+```
+git mr --lab -t target_branch -s source_branch -a assignee_user -l labels -m title --wip
+```
+
+### Docker without alias
+```
+docker run --rm -it --name gitmrc -v $PWD:/workspace -v ~/Documents:/config -t gitmr --lab -t target_branch -s source_branch -a assignee_user -l labels -m title --wip
+```
+
+### Docker with alias
+```
+your_alias --lab -t target_branch -s source_branch -a assignee_user -l labels -m title --wip
+```
 
 ---
 
 # Dependencies
-
+* NodeJs
+* Git
+* Curl
+* jq
+* Bash
+* Docker
 
 ---
 
 # Comming features
-> Add support for github
-> Update linux installer to a faster and more stable version
-> Create windows installer
-> Create a bash command to update Git-MR, and notify the users if a new version is released
-> Create a bash command to uninstall Git-MR on linux
-> Create a bash command to update the config file, rather than updating it manually by the user
-> Create Git-MR logo
+> Add support for github ==> in progress
+> Update linux installer to a faster and more stable version ==> done
+> Create windows installer ==> not yet
+> Create a bash command to uninstall Git-MR on linux ==> in progress
+> Create a bash command to update the config file, rather than updating it manually by the user ==> done
+> Create Git-MR logo ==> done
+> Cronjob to notify the users when a new release come out
+> NodeJs menu list ==> in progress
+> Support for multiple projects at once (no need to do: git mr --config to switch between projects) ==> not yet
