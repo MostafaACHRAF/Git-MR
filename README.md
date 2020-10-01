@@ -7,7 +7,7 @@ Give us a star!🌟
 # What it is Git-MR?
 Git-MR is a git command to create git merge requests from the terminal.<br/>
 It makes you a more productive developer.<br/>
-Git-MR is a fast, safe, and fun way to create git merge request.<br/>
+Git-MR is a fast, safe, and fun way to create git merge requests.<br/>
 
 * The actual version supports Gitlab only. Support for Github will be coming in the next release.
 * This tool is created for linux/unix operating systems. Support for windows will be coming in the next release.
