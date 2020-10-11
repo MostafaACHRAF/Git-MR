@@ -60,6 +60,19 @@ help() {
     printf "  --remove-all\n"
 }
 
+listAllProjects() {
+    projects=()
+    while read line; do
+        if [[ "${line}" =~ \=\>.+: ]]; then
+            line=${line//=>/}
+            line=${line//:/}
+            projects+=("${line}")
+        fi
+    done < "${gitlabProjects}"
+    result=$(echo "${projects[@]}")
+    printf "${result// /\\n}\n"
+}
+
 params=()
 
 for arg in "$@"; do
@@ -78,6 +91,9 @@ for i in "${!params[@]}"; do
         ;;
         --remove-all)
         removeAllProjects
+        ;;
+        --all)
+        listAllProjects
         ;;
     esac
 done
