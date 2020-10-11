@@ -9,6 +9,8 @@ createNewProject() {
     printf "\n"
     read -p "> [project name]:" GITLAB_PROJECT_NAME
     read -p "> [project id]:" GITLAB_PROJECT_ID
+    node menu.js
+    vcs=$(cat menu.log)
     projectAlreadyExist=$(awk -F/ '$1 == "=>'${1}':" {print "exist"; exit 0}' ${gitlabProjects})
     if [[ -z "${projectAlreadyExist}" ]]; then
         printf "==> Create new gitlab project configuration..."
@@ -16,11 +18,13 @@ createNewProject() {
         printf "=>${1}:\n" >> "${gitlabProjects}"
         printf "${1}_project_name=${GITLAB_PROJECT_NAME}\n" >> "${gitlabProjects}"
         printf "${1}_project_id=${GITLAB_PROJECT_ID}\n" >> "${gitlabProjects}"
+        printf "${1}_vcs=${vcs}\n" >> "${gitlabProjects}"
         printf "<=\n" >> "${gitlabProjects}"
         else
             printf "==> Update [${1}] gitlab project configuration..." 
             sed -i -E 's/'"(${1}_project_name=).*"'/\1'"${GITLAB_PROJECT_NAME//\//\\/}"'/g' "${gitlabProjects}"
             sed -i -E 's/'"(${1}_project_id=).*"'/\1'"${GITLAB_PROJECT_ID//\//\\/}"'/g' "${gitlabProjects}"
+            sed -i -E 's/'"(${1}_vcs=).*"'/\1'"${vcs}"'/g' "${gitlabProjects}"
     fi
     if [[ $? == 1 ]]; then printf "Failed!\n"; exit 1; else printf "Done ✔️\n"; fi
 }

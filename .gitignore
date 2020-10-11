@@ -1,2 +1,4 @@
 *.conf
-*gitlab.projects
+*.projects
+node_modules
+*.log

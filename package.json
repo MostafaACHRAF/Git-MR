@@ -1,0 +1,22 @@
+{
+  "name": "gitmr",
+  "version": "1.0.0",
+  "description": "Git command to create git merge requests from the terminal",
+  "main": "menu.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/MostafaACHRAF/Git-MR.git"
+  },
+  "author": "mostafa",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/MostafaACHRAF/Git-MR/issues"
+  },
+  "homepage": "https://github.com/MostafaACHRAF/Git-MR#readme",
+  "dependencies": {
+    "inquirer": "^7.3.3"
+  }
+}
