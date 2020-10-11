@@ -4,8 +4,9 @@ gitlabProjects="./gitlab.projects"
 
 if [[ ! -f "${gitlabProjects}" ]]; then printf "" > "${gitlabProjects}"; fi
 
-create-new-project() {
+createNewProject() {
     # ${1} : project uid
+    printf "\n"
     read -p "> [project name]:" GITLAB_PROJECT_NAME
     read -p "> [project id]:" GITLAB_PROJECT_ID
     projectAlreadyExist=$(awk -F/ '$1 == "=>'${1}':" {print "exist"; exit 0}' ${gitlabProjects})
@@ -24,7 +25,7 @@ create-new-project() {
     if [[ $? == 1 ]]; then printf "Failed!\n"; exit 1; else printf "Done ✔️\n"; fi
 }
 
-remove-project() {
+removeProject() {
     # ${1} : project uid
     projectFound=$(awk -F/ '$1 == "=>'${1}':" {print "exist"; exit 0}' ${gitlabProjects})
     if [[ ! -z "${projectFound}" ]]; then
@@ -41,7 +42,7 @@ remove-project() {
     fi
 }
 
-remove-all-projects() {
+removeAllProjects() {
     read -p "Remove all projects gitlab configurations? [y/n]:" response
     case "${response}" in
         [yY]*)
@@ -69,14 +70,14 @@ for i in "${!params[@]}"; do
     case "${params[$i]}" in
         --new)
         if [[ -z "${params[$i + 1]}" ]]; then help; exit 1; fi
-        create-new-project "${params[$i + 1]}"
+        createNewProject "${params[$i + 1]}"
         ;;
         --rm)
         if [[ -z "${params[$i + 1]}" ]]; then help; exit 1; fi
-        remove-project "${params[$i + 1]}"
+        removeProject "${params[$i + 1]}"
         ;;
         --remove-all)
-        remove-all-projects
+        removeAllProjects
         ;;
     esac
 done
