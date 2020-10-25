@@ -1,8 +1,9 @@
 FROM archlinux:latest
-RUN pacman -Sy --noconfirm
-RUN pacman -S --noconfirm git
-RUN pacman -S --noconfirm curl
-RUN pacman -S --noconfirm jq
+RUN pacman -Sy --noconfirm \
+    git \
+    curl \
+    jq \
+    node \
 RUN git clone  --progress --verbose https://github.com/MostafaACHRAF/Git-MR /bin/GitMR
 RUN chmod +x /bin/GitMR/*.sh && chmod +x /bin/GitMR/git-* && chmod 777 /bin/GitMR
 RUN touch /root/.bashrc && echo "export PATH=/bin/GitMR:$PATH" >> /root.bashrc
