@@ -3,10 +3,9 @@
 #@Author : Mostafa ASHARF
 #@email : mostafaegma@wgmail.com
 #@Date : 04/02/2019
-#@Last update : 20/03/2020
-#@Version : 3.0
+#@Last update : 25/10/2020
+#@Version : 4.0
 #Developed will listening to piano music \(^_^)/
-
 
 #git lmr <target_branch[optional;default=dev]>
 #assigned_to : <assigned_to[optional;default=me]>
@@ -14,7 +13,9 @@
 #git lmr -i : interactive mode, this helps you fill the params in an interactive way, (question => response)
 
 #======= FUN CONFIG =======
-configFile="${6}"
+configFile="${configDir}/gitlab.conf"
+projectsFile="${configDir}/git.projects"
+projectAlias="${6}"
 
 if [[ ! -f "${configFile}" || -z "${configFile}" ]]; then
   printf "\n⚠️ Gitlab integration not configured yet! ⚠️\n"
@@ -29,6 +30,13 @@ while read line; do
   fi
 done < "${configFile}"
 
+printf "\n==> Load git projects from: [${projectsFile}]...\n"
+while read line; do
+  if [[ "${line}" =~ ^([^=\s]+)\s*=(.*) ]]; then
+    params+=("${BASH_REMATCH[1]}=${BASH_REMATCH[2]}")
+  fi
+done < "${projectsFile}"
+
 getConf() {
   # $1 : key
   for param in "${params[@]}"; do
@@ -41,13 +49,20 @@ getConf() {
   done
 }
 
-GITLAB_PROJECT_NAME=$(getConf "GITLAB_PROJECT_NAME")
-GITLAB_PROJECT_ID=$(getConf "GITLAB_PROJECT_ID")
+GITLAB_PROJECT_NAME=$(getConf "${projectAlias}_project_name")
+GITLAB_PROJECT_ID=$(getConf "${projectAlias}_project_id")
 GITLAB_URL=$(getConf "GITLAB_URL")
 PRIVATE_TOKEN=$(getConf "PRIVATE_TOKEN")
 GITLAB_PROJECTS_URL=$(getConf "GITLAB_PROJECTS_URL")
 GITLAB_USERS_URL=$(getConf "GITLAB_USERS_URL")
 GITLAB_MRS_URL=$(getConf "GITLAB_MRS_URL")
+ACTUAL_USER_EMAIL=$(getConf "USER_EMAIL")
+
+if [[ -z "${GITLAB_PROJECT_NAME}" || -z "${GITLAB_PROJECT_ID}" ]]; then
+  printf "\n🚨 Error! Invalid project alias! 🚨"
+  printf "\n👉 Create new project alias using > git mr --config-alias\n" 
+  exit 1;
+fi
 
 #======= PREPARE FUN PARAMS =======
 
@@ -59,14 +74,11 @@ LABELS="${5}"
 
 DEFAULT_SOURCE_BRANCH=$(git rev-parse --abbrev-ref HEAD)
 DEFAULT_MR_TITLE=$(git log --pretty=format:%s HEAD | head -n 1)
-ACTUAL_USER_EMAIL=$(git config user.email)
 
 if [[ -z "${ACTUAL_USER_EMAIL}" ]]; then
-  ACTUAL_USER_EMAIL=$(getConf "USER_EMAIL")
-  if [[ -z "${ACTUAL_USER_EMAIL}" ]]; then
-    read -p "> [Enter your Gitlab email]:" ACTUAL_USER_EMAIL
-    printf "USER_EMAIL=${ACTUAL_USER_EMAIL}\n" >> "${configFile}"
-  fi
+  printf "\n🚨 Error! Invalid user email! 🚨"
+  printf "👉 Use > git mr --config to add your gitlab email."
+  exit 1;
 fi
 
 ACTUAL_USER_USERNAME=${ACTUAL_USER_EMAIL%%@*}
@@ -82,17 +94,12 @@ fi
 
 if [[ -z "${MR_TITLE}" ]]; then
   MR_TITLE="${DEFAULT_MR_TITLE}"
-  elif [[ "${MR_TITLE}" =~ ^wip:$|^WIP:$ ]]; then
-    MR_TITLE="${MR_TITLE}${DEFAULT_MR_TITLE}"
-    else
-      MR_TITLE="${MR_TITLE}"
+  else
+    MR_TITLE="${MR_TITLE}"
 fi
 
 #======= Main fun =======
-echo ">> [Core] : Gitlab auto merge request v.3.0"
-echo ">> [Project] : ${GITLAB_PROJECT_NAME}"
 printf "\n"
-
 #TARGET_GITLAB_PROJECT_ID=`curl --header "Private-Token:${PRIVATE_TOKEN}" --silent "${GITLAB_PROJECTS_URL}" | jq '.[] | select(.path_with_namespace=="'${GITLAB_PROJECT_NAME}'") | .id'`
 TARGET_GITLAB_PROJECT_ID="${GITLAB_PROJECT_ID}"
 ASSIGNEE_GITLAB_USER_ID=`curl --header "Private-Token:${PRIVATE_TOKEN}" --silent "${GITLAB_USERS_URL}?username=${ASSIGNEE_USER}" | jq '.[0].id'`

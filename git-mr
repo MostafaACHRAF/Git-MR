@@ -1,4 +1,26 @@
-#!/bin/bash 
+#!/bin/bash
+
+export appDir="/bin/gitmr"
+export srcDir="${appDir}/src"
+export utilsDir="${appDir}/utils"
+
+isDockerContainer=$(awk -F/ '$2 == "docker" {print "true"; exit 0}' /proc/1/cgroup )
+
+if [[ "${isDockerContainer}" == "true" ]]; then
+  export configDir="/config"
+  else
+    export configDir="${appDir}/conf"
+fi
+
+getProjectVcs() {
+    # $1: project-alias
+    while read line; do
+        if [[ $line =~ $1_vcs=.* ]]; then
+            echo ${line##*=}
+            break;
+        fi
+    done < "${configDir}/git.projects"
+}
 
 params=()
 
@@ -13,17 +35,9 @@ assignee_user=""
 labels=""
 vcs=""
 mr_title=""
-
-isDockerContainer=$(awk -F/ '$2 == "docker" {print "true"; exit 0}' /proc/1/cgroup )
-
-if [[ "${isDockerContainer}" == "true" ]]; then
-  configDir=/config
-  else
-    configDir=/bin/GitMR
-fi
+projectAlias=""
 
 for i in "${!params[@]}"; do
-
     case "${params[$i]}" in
         -i)
         mode="interactive"
@@ -44,22 +58,23 @@ for i in "${!params[@]}"; do
         mr_title="$mr_title${params[$i+1]}"
         ;;
         --wip)
-        mr_title="wip:$mr_title"
+        mr_title="WIP:$mr_title"
         ;;
-        --lab)
-        vcs="gitlab"
-        ;;
-        --hub)
-        vcs="github"
+        --in)
+        vcs=$(getProjectVcs ${params[$i+1]})
+        projectAlias="${params[$i+1]}"
         ;;
         --config)
-        sh /bin/GitMR/git-mr-config.sh "${configDir}"
+        sh ${srcDir}/git-mr-config.sh "${configDir}"
         exit 0
         ;;
+        --config-alias)
+        sh ${srcDir}/git-projects-manager.sh --new "${params[$i+1]}"
     esac
 done
 
 if [[ "${mode}" == "interactive" ]];then
+    read -p "> [project alias] : " projectAlias
     read -p "> [Source branch] : " sourceBranch
     read -p "> [Target branch] : " targetBranch
     read -p "> [ASSIGN TO (username)] : " assignee_user
@@ -68,18 +83,18 @@ if [[ "${mode}" == "interactive" ]];then
 fi
 
 if [[ -z "${targetBranch}" ]]; then
-    echo "🚨 Error! Target branch not found. 🚨"
+    echo "🚨 Error! Target branch not found! 🚨"
     exit 1;
 fi
 
 if [[ -z "${vcs}" ]];then
-    echo "🚨 Error! Version Control System not found. 🚨"
+    echo "🚨 Error! Version Control System not found! 🚨"
     exit 1; 
 fi
 
-if [[ "${vcs}" == "gitlab" ]]; then
-    sh /bin/GitMR/git-lmr "${sourceBranch}" "${targetBranch}" "${assignee_user}" "${mr_title}" "${labels}" "${configDir}/gitlab.conf"
-    elif [[ "${vcs}" == "github" ]]; then
+if [[ "${vcs}" == "Gitlab" ]]; then
+    sh ${srcDir}/git-lmr "${sourceBranch}" "${targetBranch}" "${assignee_user}" "${mr_title}" "${labels}" "${projectAlias}" 
+    elif [[ "${vcs}" == "Github" ]]; then
         # do call github mr method
         echo "github ${confDir}/github.conf"
 fi

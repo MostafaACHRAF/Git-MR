@@ -12,7 +12,7 @@ inquirer.prompt([
         ]
     }
 ]).then(answers => {
-    fs.writeFile('menu.log', answers.vcs, function(err) {
+    fs.writeFile('config/menu.log', answers.vcs, function (err) {
         if (err) {
             console.log("Error! " + err);
         }

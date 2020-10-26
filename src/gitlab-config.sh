@@ -4,11 +4,15 @@ printf "Configure Gitlab integration...\n"
 printf "\n"
 read -p "> [Gitlab url]: " GITLAB_URL
 read -p "> [Private token]: " PRIVATE_TOKEN
-read -p "> [Gitlab project uid]: " GITLAB_PROJECT_UID
+USER_EMAIL=$(git config user.email)
+if [[ -z "${USER_EMAIL}" ]]; then
+  read - p "> [Gitlab user.email]: " USER_EMAIL
+fi
+
 printf "\n"
 
 # ${1} : config file path
-configFile="${1}"
+configFile="${configDir}/gitlab.conf"
 
 if [[ ! -f "${configFile}" ]]; then
   printf "==> Generate new config file [${configFile}]..."
@@ -17,6 +21,7 @@ if [[ ! -f "${configFile}" ]]; then
   printf "GITLAB_PROJECTS_URL=${GITLAB_URL}/api/v4/projects\n" >> "${configFile}"
   printf "GITLAB_USERS_URL=${GITLAB_URL}/api/v4/users\n" >> "${configFile}"
   printf "GITLAB_MRS_URL=${GITLAB_URL}/${GITLAB_PROJECT_NAME}/merge_requests\n" >> "${configFile}"
+  printf "USER_EMAIL=${USER_EMAIL}" >> "${configFile}"
   printf "\n" >> "${configFile}"
   if [[ $? == 1 ]]; then printf "\n🚨 Erro! Something went wrong will generating config file! 🚨\n"; exit 1; else printf "Done ✔\n"; fi
 fi
@@ -39,8 +44,6 @@ if [[ -n "${GITLAB_URL}" && -n "${PRIVATE_TOKEN}" ]]; then
   sed -i -E 's/'"^(PRIVATE_TOKEN=).*"'/\1'"${PRIVATE_TOKEN}"'/g' "${configFile}"
   if [[ $? == 1 ]]; then printf "\n"; exit 1; else printf "Done ✔️\n"; fi
 
-  sh gitlab-project.sh --new "${GITLAB_PROJECT_UID}"
-    
   printf "\nAll done! GitMR is ready 🔥🔥🔥\n"
   printf "👉 You need help? Type git mr --help\n" 
   printf "👉 Or visit our repository: https://github.com/MostafaACHRAF/Git-MR\n"
@@ -48,5 +51,5 @@ if [[ -n "${GITLAB_URL}" && -n "${PRIVATE_TOKEN}" ]]; then
 fi
 
 printf "\n🚨 Gitlab configuration has failed! Because of INVALID params. 🚨"
-printf "All params are required.🧐\n"
+printf "👉 All params are required.🧐\n"
 exit 1
