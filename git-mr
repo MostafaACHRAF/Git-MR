@@ -6,11 +6,11 @@ export utilsDir="${appDir}/utils"
 
 isDockerContainer=$(awk -F/ '$2 == "docker" {print "true"; exit 0}' /proc/1/cgroup )
 
-if [[ "${isDockerContainer}" == "true" ]]; then
-  export configDir="/config"
-  else
+# if [[ "${isDockerContainer}" == "true" ]]; then
+#   export configDir="/config"
+#   else
     export configDir="${appDir}/conf"
-fi
+# fi
 
 getProjectVcs() {
     # $1: project-alias
