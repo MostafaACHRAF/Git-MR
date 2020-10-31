@@ -19,23 +19,24 @@ projectAlias="${6}"
 
 if [[ ! -f "${configFile}" || -z "${configFile}" ]]; then
   printf "\n⚠️ Gitlab integration not configured yet! ⚠️\n"
-  sh /bin/GitMR/gitlab-config.sh "${configFile}"
+  sh ${srcDir}/gitlab-config.sh "${configFile}"
 fi
 
 params=()
-printf "\n==> Load gitlab configuration from: [${configFile}]...\n"
+
+printf "\n==> Load git projects data from: [${projectsFile}]..."
+while read line; do
+  if [[ "${line}" =~ (.+)=(.+) ]]; then
+    params+=("${BASH_REMATCH[1]}=${BASH_REMATCH[2]}")
+  fi
+done < "${projectsFile}"
+
+printf "\n==> Load gitlab configuration from: [${configFile}]..."
 while read line; do
   if [[ "${line}" =~ ^([^\#=\s]+)\s*=(.*) ]]; then
     params+=("${BASH_REMATCH[1]}=${BASH_REMATCH[2]}")
   fi
 done < "${configFile}"
-
-printf "\n==> Load git projects from: [${projectsFile}]...\n"
-while read line; do
-  if [[ "${line}" =~ ^([^=\s]+)\s*=(.*) ]]; then
-    params+=("${BASH_REMATCH[1]}=${BASH_REMATCH[2]}")
-  fi
-done < "${projectsFile}"
 
 getConf() {
   # $1 : key
@@ -77,7 +78,7 @@ DEFAULT_MR_TITLE=$(git log --pretty=format:%s HEAD | head -n 1)
 
 if [[ -z "${ACTUAL_USER_EMAIL}" ]]; then
   printf "\n🚨 Error! Invalid user email! 🚨"
-  printf "👉 Use > git mr --config to add your gitlab email."
+  printf "👉 Use : (git mr --config) to add your gitlab email."
   exit 1;
 fi
 
@@ -139,9 +140,6 @@ if [[ ! -z "${AUTHOR_ID}" && ! -z "${ASSIGNEE_GITLAB_USER_ID}" ]]; then
     ;;
   esac
 else
-  if [[ -z "${ASSIGNEE_GITLAB_USER_ID}" ]]; then
-    printf "🚨 Invalid! User.name, [ASSIGNEE_GITLAB_USER_ID=${ASSIGNEE_GITLAB_USERNAME}] 🚨\n"
-  else
-    printf "🚨 Invalid! User.name, [ACTUAL_USER_USERNAME=${ACTUAL_USER_USERNAME}] 🚨\n"
-  fi
+    printf "\n🚨 Error! [ASSIGNEE USER ID:${ASSIGNEE_GITLAB_USERNAME}] And [AUTHOR ID:${AUTHOR_ID}] 🚨"
+    printf "\n👉 Check your access tocken in (${configFile})\n"
 fi

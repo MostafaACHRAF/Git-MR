@@ -6,20 +6,25 @@ export utilsDir="${appDir}/utils"
 
 isDockerContainer=$(awk -F/ '$2 == "docker" {print "true"; exit 0}' /proc/1/cgroup )
 
-# if [[ "${isDockerContainer}" == "true" ]]; then
-#   export configDir="/config"
-#   else
+if [[ "${isDockerContainer}" == "true" ]]; then
+  export configDir="/conf"
+  else
     export configDir="${appDir}/conf"
-# fi
+fi
 
 getProjectVcs() {
     # $1: project-alias
-    while read line; do
-        if [[ $line =~ $1_vcs=.* ]]; then
-            echo ${line##*=}
-            break;
-        fi
-    done < "${configDir}/git.projects"
+    if [[ -f "${configDir}/git.projects" && -s "${configDir}/git.projects" ]]; then
+        while read line; do
+            if [[ $line =~ $1_vcs=.* ]]; then
+                echo ${line##*=}
+                break;
+            fi
+        done < "${configDir}/git.projects"
+        else
+            printf "\n⚠️ Git project's alias [${1}] not found! ⚠️"
+            sh ${srcDir}/git-projects-manager.sh --new "${1}"
+    fi
 }
 
 params=()
@@ -60,7 +65,7 @@ for i in "${!params[@]}"; do
         --wip)
         mr_title="WIP:$mr_title"
         ;;
-        --in)
+        -in)
         vcs=$(getProjectVcs ${params[$i+1]})
         projectAlias="${params[$i+1]}"
         ;;
@@ -68,8 +73,14 @@ for i in "${!params[@]}"; do
         sh ${srcDir}/git-mr-config.sh "${configDir}"
         exit 0
         ;;
-        --config-alias)
+        -new-alias)
         sh ${srcDir}/git-projects-manager.sh --new "${params[$i+1]}"
+        exit 0
+        ;;
+        --version)
+        printf "v.4.0\n"
+        exit 0
+        ;;
     esac
 done
 
@@ -83,12 +94,15 @@ if [[ "${mode}" == "interactive" ]];then
 fi
 
 if [[ -z "${targetBranch}" ]]; then
-    echo "🚨 Error! Target branch not found! 🚨"
+    printf "\n🚨 Error! Target branch not found! 🚨"
+    printf "\n👉 Please enter a valide target branch name. Like this: (... -t origin/release ...)\n"
     exit 1;
 fi
 
 if [[ -z "${vcs}" ]];then
-    echo "🚨 Error! Version Control System not found! 🚨"
+    printf "\n🚨 Error! Version Control System not found! 🚨"
+    printf "\n👉 Please run this command to create new git project alias:"
+    printf "\n👉 git mr --config-alias ALIAS_NAME\n"
     exit 1; 
 fi
 

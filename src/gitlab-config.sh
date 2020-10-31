@@ -6,7 +6,7 @@ read -p "> [Gitlab url]: " GITLAB_URL
 read -p "> [Private token]: " PRIVATE_TOKEN
 USER_EMAIL=$(git config user.email)
 if [[ -z "${USER_EMAIL}" ]]; then
-  read - p "> [Gitlab user.email]: " USER_EMAIL
+  read -p "> [Gitlab user.email]: " USER_EMAIL
 fi
 
 printf "\n"

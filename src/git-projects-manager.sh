@@ -6,10 +6,10 @@ if [[ ! -f "${gitProjects}" ]]; then printf "" > "${gitProjects}"; fi
 
 createNewProject() {
     # ${1} : project uid
-    printf "\n"
+    printf "\n==> Create new project alias for [${1}] git project...\n"
     read -p "> [Git project name]:" GIT_PROJECT_NAME
     read -p "> [Git project id]:" GIT_PROJECT_ID
-    node ${utilsDir}/vcs_menu/menu.js
+    configDir="${configDir}" node ${utilsDir}/vcs_menu/menu.js
     vcs=$(cat ${configDir}/menu.log)
     projectAlreadyExist=$(awk -F/ '$1 == "=>'${1}':" {print "exist"; exit 0}' ${gitProjects})
     if [[ -z "${projectAlreadyExist}" ]]; then
@@ -57,6 +57,7 @@ removeAllProjects() {
 }
 
 help() {
+    printf "Alias not found!\n"
     printf "Invalid command!\n"
     printf "Possible options:\n"
     printf "  --new {project_uid}\n"

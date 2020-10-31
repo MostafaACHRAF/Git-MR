@@ -2,3 +2,4 @@
 *.projects
 node_modules
 *.log
+conf/*
