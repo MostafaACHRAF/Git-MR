@@ -1,5 +1,6 @@
 #!/bin/bash
 
+accessToken="76a99c88d106a1ab21d3364d2bfa8d07821e40ea"
 username="${1}"
 repo="${2}"
 owner="${3}"
@@ -9,15 +10,9 @@ title="${6}"
 isDraft="${7}"
 
 if [[ -z "${username}" || -z "${owner}" || -z "${repo}" || -z "${headBranch}" || -z "${baseBranch}" ]]; then
-    errorDetails="{
-        headBranch:${headBranch}\n
-        baseBranch:${baseBranch}\n
-        owner:${owner}\n
-        repo:${repo}\n
-        username:${username}\n
-    }"
-    printf "Error! {headBranch, baseBranch, owner, repo} are required!\n"
-    printf "${errorDetails}\n"
+    errorDetails="{headBranch=${headBranch}, baseBranch=${baseBranch}, owner=${owner},repo=${repo}, username=${username}}"
+    printf "🚨 Error! {headBranch, baseBranch, owner, repo} are required! 🚨\n"
+    printf "👉 ${errorDetails}\n"
     exit 1
 fi
 
@@ -25,35 +20,37 @@ body="{
     \"head\":\"${headBranch}\",
     \"base\":\"${baseBranch}\",
     \"title\":\"${title}\",
-    \"draft\":\"${isDraft}\",
+    \"draft\":\"${isDraft}\"
 }"
 
 printf "${body}\n"
-read -p "Create pull request of [${headBranch}] by [${baseBranch}]? y/n:" response
+read -p "?Create pull request of [${headBranch}] by [${baseBranch}]? y/n:" response
 
 case "${response}" in
     y|Y)
     pullsUrl="https://api.github.com/repos/${owner}/${repo}/pulls"
+    echo ${pullsUrl}
     curl \
         -X POST \
         -H "Accept: application/vnd.github.v3+json" \
+        -H "Authorization: token ${accessToken}" \
         ${pullsUrl} \
-        -d ${body}
+        -d "${body}"
 
-    pullId=`curl \ -H "Accept: application/vnd.github.v3+json" \ "${pullsUrl}?status=open&head=${headBranch}" | jq .[0].number`
+    pullId=`curl -H "Accept: application/vnd.github.v3+json" "${pullsUrl}?status=open&head=${headBranch}" | jq .[0].number`
     pullUrl="${pullsUrl}/${pullId}"
 
-    if [[ -z "${pullId}" ]]; then
-        printf "Error! Failed to create pull request!\n"
+    if [[ -z "${pullId}" && "${pullId}" != "null" ]]; then
+        printf "🚨 Error! Failed to create pull request! 🚨\n"
         exit 1
     fi
 
-    printf "Success! pull request [${pullId}] is created successfully.\n"
+    printf "🎉🎉🎉 Success! pull request [${pullId}] is created successfully.\n"
     if [[ ! -z "${isDockerContainer}" ]]; then printf "${pullUrl}\n"; else xdg-open "${pullUrl}"; fi
     exit 0
     ;; 
     *)
-    printf "Pull request canceled."
+    printf "👉 Pull request canceled."
     exit 1 
     ;; 
 esac
