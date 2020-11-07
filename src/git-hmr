@@ -1,6 +1,6 @@
 #!/bin/bash
 
-accessToken="76a99c88d106a1ab21d3364d2bfa8d07821e40ea"
+accessToken="6b071497fb304911ab6bf9ffdf706674a04a540a"
 username="${1}"
 repo="${2}"
 owner="${3}"
@@ -8,6 +8,8 @@ headBranch="${username}:${4}"
 baseBranch="${5}"
 title="${6}"
 isDraft="${7}"
+labels="${8}"
+assignees="${9}"
 
 if [[ -z "${username}" || -z "${owner}" || -z "${repo}" || -z "${headBranch}" || -z "${baseBranch}" ]]; then
     errorDetails="{headBranch=${headBranch}, baseBranch=${baseBranch}, owner=${owner},repo=${repo}, username=${username}}"
@@ -20,7 +22,9 @@ body="{
     \"head\":\"${headBranch}\",
     \"base\":\"${baseBranch}\",
     \"title\":\"${title}\",
-    \"draft\":\"${isDraft}\"
+    \"draft\":${isDraft},
+    \"labels\":\"[${labels}]\",
+    \"assignees\":\"[${assignees}]\"
 }"
 
 printf "${body}\n"
@@ -29,28 +33,34 @@ read -p "?Create pull request of [${headBranch}] by [${baseBranch}]? y/n:" respo
 case "${response}" in
     y|Y)
     pullsUrl="https://api.github.com/repos/${owner}/${repo}/pulls"
-    echo ${pullsUrl}
-    curl \
+
+    erros=`curl -s -o \
         -X POST \
         -H "Accept: application/vnd.github.v3+json" \
         -H "Authorization: token ${accessToken}" \
         ${pullsUrl} \
-        -d "${body}"
+        -d "${body}" | jq .errors[0].message`
 
-    pullId=`curl -H "Accept: application/vnd.github.v3+json" "${pullsUrl}?status=open&head=${headBranch}" | jq .[0].number`
-    pullUrl="${pullsUrl}/${pullId}"
-
-    if [[ -z "${pullId}" && "${pullId}" != "null" ]]; then
-        printf "🚨 Error! Failed to create pull request! 🚨\n"
+    if [[ "${erros}" != "null" ]]; then
+        printf "\n🚨 Error! Failed to create pull request! 🚨\n"
+        printf "${erros}\n"
         exit 1
     fi
 
-    printf "🎉🎉🎉 Success! pull request [${pullId}] is created successfully.\n"
-    if [[ ! -z "${isDockerContainer}" ]]; then printf "${pullUrl}\n"; else xdg-open "${pullUrl}"; fi
+    pullId=`curl -S -H "Accept: application/vnd.github.v3+json" "${pullsUrl}?status=open&head=${headBranch}" | jq .[0].number`
+    pullUrl="${pullsUrl}/${pullId}"
+
+    if [[ "${pullId}" == "null" ]]; then
+        printf "\n🚨 Error! Failed to get pull request: [${pullId}]! 🚨\n"
+        exit 1
+    fi
+
+    printf "\n🎉🎉🎉 Success! pull request [${pullId}] is created successfully.\n"
+    if [[ ! -z "${isDockerContainer}" ]]; then printf "visit: ${pullUrl}\n"; else xdg-open "${pullUrl}"; fi
     exit 0
     ;; 
     *)
-    printf "👉 Pull request canceled."
+    printf "\n👉 Pull request canceled.\n"
     exit 1 
     ;; 
 esac
