@@ -5,7 +5,7 @@ username="${1}"
 repo="${2}"
 owner="${3}"
 headBranch="${username}:${4}"
-baseBranch="${owner}:${5}"
+baseBranch="${5}"
 title="${6}"
 isDraft="${7}"
 
