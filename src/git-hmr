@@ -1,59 +1,90 @@
 #!/bin/bash
 
+accessToken="6b071497fb304911ab6bf9ffdf706674a04a540a"
 username="${1}"
 repo="${2}"
 owner="${3}"
 headBranch="${username}:${4}"
-baseBranch="${owner}:${5}"
+baseBranch="${5}"
 title="${6}"
 isDraft="${7}"
+labels="${8}"
+assignees="${9}"
 
 if [[ -z "${username}" || -z "${owner}" || -z "${repo}" || -z "${headBranch}" || -z "${baseBranch}" ]]; then
-    errorDetails="{
-        headBranch:${headBranch}\n
-        baseBranch:${baseBranch}\n
-        owner:${owner}\n
-        repo:${repo}\n
-        username:${username}\n
-    }"
-    printf "Error! {headBranch, baseBranch, owner, repo} are required!\n"
-    printf "${errorDetails}\n"
+    errorDetails="{headBranch=${headBranch}, baseBranch=${baseBranch}, owner=${owner},repo=${repo}, username=${username}}"
+    printf "\n🚨 Error! {headBranch, baseBranch, owner, repo} are required! 🚨\n"
+    printf "\n👉 ${errorDetails}\n"
     exit 1
 fi
+
+# format labels and assignees fields, to be accepted json arrays
+labels="\"${labels//,/\",\"}\""
+assignees="\"${assignees//,/\",\"}\""
 
 body="{
     \"head\":\"${headBranch}\",
     \"base\":\"${baseBranch}\",
     \"title\":\"${title}\",
-    \"draft\":\"${isDraft}\",
+    \"draft\":${isDraft},
+    \"labels\":[${labels}],
+    \"assignees\":[${assignees}]
 }"
 
 printf "${body}\n"
-read -p "Create pull request of [${headBranch}] by [${baseBranch}]? y/n:" response
+read -p "?Create pull request of [${headBranch}] by [${baseBranch}]? y/n: " response
 
 case "${response}" in
     y|Y)
     pullsUrl="https://api.github.com/repos/${owner}/${repo}/pulls"
-    curl \
+    issuesUrl="https://api.github.com/repos/${owner}/${repo}/issues"
+
+    printf "\n==> Create new pull request..."
+    errors=`curl -s -o \
         -X POST \
         -H "Accept: application/vnd.github.v3+json" \
+        -H "Authorization: token ${accessToken}" \
         ${pullsUrl} \
-        -d ${body}
+        -d "${body}" | jq .errors[0].message`
 
-    pullId=`curl \ -H "Accept: application/vnd.github.v3+json" \ "${pullsUrl}?status=open&head=${headBranch}" | jq .[0].number`
-    pullUrl="${pullsUrl}/${pullId}"
 
-    if [[ -z "${pullId}" ]]; then
-        printf "Error! Failed to create pull request!\n"
+    if [[ "${errors}" != "null" ]]; then
+        printf "\n🚨 Error! Failed to create pull request! 🚨\n"
+        printf "${errors}\n"
         exit 1
     fi
 
-    printf "Success! pull request [${pullId}] is created successfully.\n"
-    if [[ ! -z "${isDockerContainer}" ]]; then printf "${pullUrl}\n"; else xdg-open "${pullUrl}"; fi
+    sleep 5s
+
+    printf "Done.\n==> Get pull request id..."
+    pullId=`curl -s -o -H "Accept: application/vnd.github.v3+json" "${pullsUrl}?status=open&head=${headBranch}" | jq .[0].number`
+    pullUrl="https://github.com/${owner}/${repo}/pull/${pullId}"
+
+    if [[ "${pullId}" == "null" ]]; then
+        printf "\n🚨 Error! Failed to get pull request: [${pullId}]! After waiting for 5 seconds. 🚨\n"
+        exit 1
+    fi
+
+    printf "Done.\n==> Set labels and assignees..."
+    errors=`curl -s -o \
+        -X PATCH \
+        -H "Accept: application/vnd.github.v3+json" \
+        -H "Authorization: token ${accessToken}" \
+        ${issuesUrl}/${pullId} \
+        -d "${body}" | jq .errors[0].message`
+
+    if [[ "${errors}" != "null" ]]; then
+        printf "\n🚨 Error! Failed to set (labels) and (assignees) fields into pull request: [${pullId}]! 🚨\n"
+        printf "${errors}\n"
+        exit 1
+    fi
+
+    printf "Done.\n🎉🎉🎉 Success! pull request [${pullId}] is created successfully.\n"
+    if [[ ! -z "${isDockerContainer}" ]]; then printf "visit: ${pullUrl}\n"; else xdg-open "${pullUrl}"; fi
     exit 0
     ;; 
     *)
-    printf "Pull request canceled."
+    printf "\n👉 Pull request canceled.\n"
     exit 1 
     ;; 
 esac
