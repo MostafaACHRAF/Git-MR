@@ -1,39 +1,68 @@
 #!/bin/bash
 
-gitProjects="${configDir}/git.projects"
+gitProjects="../conf/git.projects"
 
 if [[ ! -f "${gitProjects}" ]]; then printf "" > "${gitProjects}"; fi
 
-createNewProject() {
-    # ${1} : project uid
-    printf "\n==> Create new project alias for [${1}] git project...\n"
-    read -p "> [Git project name]:" GIT_PROJECT_NAME
-    read -p "> [Git project id]:" GIT_PROJECT_ID
-    configDir="${configDir}" node ${utilsDir}/vcs_menu/menu.js
-    vcs=$(cat ${configDir}/menu.log)
-    projectAlreadyExist=$(awk -F/ '$1 == "=>'${1}':" {print "exist"; exit 0}' ${gitProjects})
-    if [[ -z "${projectAlreadyExist}" ]]; then
-        printf "==> Create new git project configuration..."
-        printf "\n" >> "${gitProjects}"
-        printf "=>${1}:\n" >> "${gitProjects}"
-        printf "${1}_project_name=${GIT_PROJECT_NAME}\n" >> "${gitProjects}"
-        printf "${1}_project_id=${GIT_PROJECT_ID}\n" >> "${gitProjects}"
-        printf "${1}_vcs=${vcs}\n" >> "${gitProjects}"
-        printf "<=\n" >> "${gitProjects}"
-        else
-            printf "==> Update [${1}] gitlab project configuration..." 
-            sed -i -E 's/'"(${1}_project_name=).*"'/\1'"${GIT_PROJECT_NAME//\//\\/}"'/g' "${gitProjects}"
-            sed -i -E 's/'"(${1}_project_id=).*"'/\1'"${GIT_PROJECT_ID//\//\\/}"'/g' "${gitProjects}"
-            sed -i -E 's/'"(${1}_vcs=).*"'/\1'"${vcs}"'/g' "${gitProjects}"
-    fi
-    if [[ $? == 1 ]]; then printf "Failed!\n"; exit 1; else printf "Done ✔️\n"; fi
+githubFields=(alias username token owner repo)
+gitlabFields=(alias username project_name token project_id)
+
+getFormatedFieldValue() {
+    fieldName=${1}
+    data=${2}
+    value=`echo "${data}" | jq ."${fieldName}"`
+    echo "${value//\"/}"
+}
+
+startNewAlias() {
+    alias="${1}"
+    printf "\n=>${alias}:\n" >> "${gitProjects}"
+}
+
+endNewAlias() {
+    printf "<=\n" >> "${gitProjects}"
+}
+
+createOrUpdateAliasFields() {
+    data=${1}
+    vcs=${2}
+    action=${3}
+
+    if [[ "${vcs}" == "github" ]]; then fields=("${githubFields[@]}"); else fields=("${gitlabFields[@]}"); fi
+    alias=$(getFormatedFieldValue "alias" "${data}")
+
+    for field in "${fields[@]}"; do
+        fieldValue=$(getFormatedFieldValue "$field" "$data")
+        if [[ "${action}" == "add" ]]; then
+            printf "==> Add [${field}] to [${alias}] alias..."
+            printf "${alias}_${field}=${fieldValue}\n" >> "${gitProjects}"
+            else
+                printf "==> Update [${field}] in [${alias}] alias..."
+                sed -i -E 's/'"(${alias}_${field}=).*"'/\1'"${fieldValue//\//\\/}"'/g' "${gitProjects}"
+        fi
+        if [[ $? == 1 ]]; then printf "Failed!\n"; exit 1; else printf "Done ✔️\n"; fi
+    done
+}
+
+createGitProjectAlias() {
+    data="${1}"
+    alias=$(getFormatedFieldValue "alias" "${data}")
+    vcs=$(getFormatedFieldValue "vcs" "${data}")
+    aliasAlreadyExist=$(awk -F/ '$1 == "=>'${alias}':" {print "exist"; exit 0}' ${gitProjects})
+    if [[ -z "${aliasAlreadyExist}" ]]; then startNewAlias "${alias}"; action="add"; else action="update"; fi
+
+    if [[ "${vcs}" != "github" && "${vcs}" != "gitlab" ]]; then printf "🚨 Error! Unsupported vcs: [$vcs]! 🚨\n"; exit 1; fi
+
+    createOrUpdateAliasFields "${data}" "${vcs}" "${action}"
+
+    if [[ "${action}" == "add" ]]; then endNewAlias; fi
 }
 
 removeProject() {
     # ${1} : project uid
     projectFound=$(awk -F/ '$1 == "=>'${1}':" {print "exist"; exit 0}' ${gitProjects})
     if [[ ! -z "${projectFound}" ]]; then
-        read -p "Remove this [${1}] git configuration? [y/n]:" response 
+        read -p "Remove [${1}] alias configuration? [y/n]:" response 
         case "${response}" in
         [yY]*)
             printf "==> Remove [${1}] git configuration..."
@@ -42,12 +71,12 @@ removeProject() {
         ;;
     esac
         else
-            printf "Error! Project not found!\n"
+            printf "🚨 Error! Project not found! 🚨\n"
     fi
 }
 
 removeAllProjects() {
-    read -p "Remove all projects git configurations? [y/n]:" response
+    read -p "?Remove all projects git configurations? [y/n]:" response
     case "${response}" in
         [yY]*)
         printf "==> Remove all git projects configuration..."
@@ -87,9 +116,9 @@ done
 
 for i in "${!params[@]}"; do
     case "${params[$i]}" in
-        --new)
+        --new-alias)
         if [[ -z "${params[$i + 1]}" ]]; then help; exit 1; fi
-        createNewProject "${params[$i + 1]}"
+        createGitProjectAlias "${params[$i + 1]}"
         exit 0
         ;;
         --rm)
@@ -106,7 +135,7 @@ for i in "${!params[@]}"; do
         exit 0
         ;;
         *)
-        printf "\n🚨 Error! command not found! 🚨\n"
+        printf "🚨 Error! command not found! 🚨\n"
         ;;
     esac
 done
