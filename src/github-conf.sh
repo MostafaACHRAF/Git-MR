@@ -6,6 +6,7 @@ read -p "> Github access token: " accessToken
 read -p "> Github full repository name:" repo
 
 owner=${repo%%/*}
+repo=${repo##*/}
 
 if [[ -z "${owner}" ]]; then printf "\nError! invalid owner.\n Please enter the full repo name: {owner}/{repo}\n"; exit 1; fi
 
@@ -22,7 +23,7 @@ read -p "?Create github project alias? y/n: " response
 
 case "${response}" in
     y|Y)
-    sh ./git-projects-manager.sh --new-alias "${data}"
+    sh ${srcDir}/gpm.sh -na "${data}"
     ;;
     *)
     printf "\nCreating new github project alias canceled!\n"

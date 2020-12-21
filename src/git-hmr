@@ -1,15 +1,22 @@
 #!/bin/bash
 
-accessToken="6b071497fb304911ab6bf9ffdf706674a04a540a"
-username="${1}"
-repo="${2}"
-owner="${3}"
-headBranch="${username}:${4}"
-baseBranch="${5}"
-title="${6}"
-isDraft="${7}"
-labels="${8}"
-assignees="${9}"
+data="${1}"
+
+accessToken=$(gpm -getj accessToken "${data}")
+username=`gpm -getj username "${data}"`
+repo=`gpm -getj repo "${data}"`
+owner=`gpm -getj owner "${data}"`
+sourceBranch=`gpm -getj sourceBranch "${data}"`
+targetBranch=`gpm -getj targetBranch "${data}"`
+headBranch="${username}:${sourceBranch}"
+baseBranch="${targetBranch}"
+title=`gpm -getj mrTitle "${data}"`
+isDraft=`gpm -getj draft "${data}"`
+labels=`gpm -getj labels "${data}"`
+assignees=`gpm -getj assigneeUsers "${data}"`
+
+echo "owner=${owner}"
+echo "repo=${repo}"
 
 if [[ -z "${username}" || -z "${owner}" || -z "${repo}" || -z "${headBranch}" || -z "${baseBranch}" ]]; then
     errorDetails="{headBranch=${headBranch}, baseBranch=${baseBranch}, owner=${owner},repo=${repo}, username=${username}}"
@@ -23,9 +30,9 @@ labels="\"${labels//,/\",\"}\""
 assignees="\"${assignees//,/\",\"}\""
 
 body="{
-    \"head\":\"${headBranch}\",
-    \"base\":\"${baseBranch}\",
-    \"title\":\"${title}\",
+    \"head\":${headBranch},
+    \"base\":${baseBranch},
+    \"title\":${title},
     \"draft\":${isDraft},
     \"labels\":[${labels}],
     \"assignees\":[${assignees}]

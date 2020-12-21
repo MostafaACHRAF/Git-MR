@@ -1,11 +1,12 @@
 #!/bin/bash
+# Git Projects Manager
 
-gitProjects="../conf/git.projects"
+gitProjects="${configDir}/git.projects"
 
 if [[ ! -f "${gitProjects}" ]]; then printf "" > "${gitProjects}"; fi
 
-githubFields=(alias username token owner repo)
-gitlabFields=(alias username project_name token project_id)
+githubFields=(alias username token owner repo vcs)
+gitlabFields=(alias username project_name token project_id vcs)
 
 getFormatedFieldValue() {
     fieldName=${1}
@@ -21,6 +22,11 @@ startNewAlias() {
 
 endNewAlias() {
     printf "<=\n" >> "${gitProjects}"
+}
+
+isAliasExist() {
+    alias="${1}"
+    awk -F/ '$1 == "=>'${alias}':" {print "exist"; exit 0}' ${gitProjects}
 }
 
 createOrUpdateAliasFields() {
@@ -44,11 +50,11 @@ createOrUpdateAliasFields() {
     done
 }
 
-createGitProjectAlias() {
+createOrUpdateGitProjectAlias() {
     data="${1}"
     alias=$(getFormatedFieldValue "alias" "${data}")
     vcs=$(getFormatedFieldValue "vcs" "${data}")
-    aliasAlreadyExist=$(awk -F/ '$1 == "=>'${alias}':" {print "exist"; exit 0}' ${gitProjects})
+    aliasAlreadyExist=$(isAliasExist "${alias}")
     if [[ -z "${aliasAlreadyExist}" ]]; then startNewAlias "${alias}"; action="add"; else action="update"; fi
 
     if [[ "${vcs}" != "github" && "${vcs}" != "gitlab" ]]; then printf "🚨 Error! Unsupported vcs: [$vcs]! 🚨\n"; exit 1; fi
@@ -107,6 +113,20 @@ listAllProjects() {
     printf "${result// /\\n}\n"
 }
 
+getAliasFieldValue() {
+    alias="${1}"
+    field="${2}"
+    if [[ -f "${configDir}/git.projects" && -s "${configDir}/git.projects" ]]; then
+        while read line; do
+            if [[ $line =~ ${alias}_${field}=.* ]]; then
+                echo ${line##*=}
+                break;
+            fi
+        done < "${configDir}/git.projects"
+    fi
+}
+
+############################################################################################
 
 params=()
 
@@ -116,22 +136,34 @@ done
 
 for i in "${!params[@]}"; do
     case "${params[$i]}" in
-        --new-alias)
+        -na)
         if [[ -z "${params[$i + 1]}" ]]; then help; exit 1; fi
-        createGitProjectAlias "${params[$i + 1]}"
+        createOrUpdateGitProjectAlias "${params[$i + 1]}"
         exit 0
         ;;
-        --rm)
+        -rm)
         if [[ -z "${params[$i + 1]}" ]]; then help; exit 1; fi
         removeProject "${params[$i + 1]}"
         exit 0
         ;;
-        --remove-all)
+        --rm)
         removeAllProjects
         exit 0
         ;;
-        --all)
+        --ls)
         listAllProjects
+        exit 0
+        ;;
+        -get)
+        getAliasFieldValue "${params[$i + 1]}" "${params[$i + 2]}"
+        exit 0
+        ;;
+        -ae)
+        isAliasExist "${params[$i + 1]}"
+        exit 0
+        ;;
+        -getj)
+        getFormatedFieldValue "${params[$i + 1]}" "${params[$i + 2]}"
         exit 0
         ;;
         *)
