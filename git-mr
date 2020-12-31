@@ -1,7 +1,7 @@
 #!/bin/bash
 
-export appDir="/bin/gitmr"
-export srcDir="${appDir}/src"
+export appDir="."
+export srcDir="src"
 export utilsDir="${appDir}/utils"
 export isDockerContainer=$(awk -F/ '$2 == "docker" {print "true"; exit 0}' /proc/1/cgroup )
 
@@ -11,20 +11,98 @@ if [[ "${isDockerContainer}" == "true" ]]; then
     export configDir="${appDir}/conf"
 fi
 
-getProjectVcs() {
-    # $1: project-alias
-    if [[ -f "${configDir}/git.projects" && -s "${configDir}/git.projects" ]]; then
-        while read line; do
-            if [[ $line =~ $1_vcs=.* ]]; then
-                echo ${line##*=}
-                break;
-            fi
-        done < "${configDir}/git.projects"
-        else
-            printf "\n⚠️ Git project's alias [${1}] not found! ⚠️"
-            sh ${srcDir}/git-projects-manager.sh --new "${1}"
-    fi
+######################################################################################################
+
+configureGitProjects() {
+    node ${utilsDir}/vcs_menu.js
+    vcs=$(cat ${configDir}/vcs.log)
+    case "${vcs}" in
+        Gitlab)
+        sh ${srcDir}/gitlab-conf.sh
+        exit 0;
+        ;;
+        Github)
+        sh ${srcDir}/github-conf.sh
+        exit 0;
+        ;;
+        *)
+        printf "🚨Error! Invalid vcs: [$vcs].\n"
+        ;;
+    esac
 }
+
+prepareData() {
+    sourceBranch="${1}"
+    targetBranch="${2}"
+    assignee_users="${3}"
+    mr_title="${4}"
+    labels="${5}"
+    wip="${6}"
+    projectAlias="${7}"
+    vcs="${8}"
+    draft=false
+
+    # Get project's data from "${configDir}/git.projects"
+    accessToken=$(gpm -get "${projectAlias}" "token")
+    username=$(gpm -get "${projectAlias}" "username")
+    owner=$(gpm -get "${projectAlias}" "owner")
+    repo=$(gpm -get "${projectAlias}" "repo")
+
+    if [ -z "${sourceBranch}" ]; then
+        # default sourceBranch is : the actual local branch
+        sourceBranch=$(git rev-parse --abbrev-ref HEAD)
+    fi
+
+    if [ -z "${mr_title}" ]; then
+        # default title is : the title of the last commit
+        mr_title=$(git log --pretty=format:%s HEAD | head -n 1)
+    fi
+
+    if [ -z "${assignee_users}" ]; then
+        # default assignee user is : the actual user's username
+        assignee_users="${username}"
+    fi
+
+
+    if [ "${wip}" == "true" ]; then
+        case "${vcs}" in
+            "github")
+            draft=true
+            ;;
+            "gitlab")
+            mr_title="WIP:${mr_title}"
+            assignee_user="${assignee_users%%,*}" # get only the first username
+            ;;
+        esac
+    fi
+
+
+    data="{
+        \"username\":\"${username}\",
+        \"accessToken\": \"${accessToken}\",
+        \"repo\": \"${repo}\",
+        \"sourceBranch\": \"${sourceBranch}\",
+        \"targetBranch\": \"${targetBranch}\",
+        \"mrTitle\": \"${mr_title}\",
+        \"draft\": ${draft},
+        \"labels\": \"${labels}\",
+        \"assigneeUser\": \"${assignee_user}\",
+        \"assigneeUsers\": \"${assignee_users}\",
+        \"owner\": \"${owner}\"
+    }"
+    echo "${data}"
+}
+
+gpm() {
+    cmd="${1}"
+    param1="${2}"
+    param2="${3}"
+    sh ${srcDir}/gpm.sh "${cmd}" "${param1}" "${param2}" 
+}
+
+export -f gpm
+
+#############################################################################################
 
 params=()
 
@@ -32,20 +110,16 @@ for arg in "$@"; do
     params+=("$arg")
 done
 
-mode="default"
 sourceBranch=""
 targetBranch=""
-assignee_user=""
+assignee_users=""
 labels=""
-vcs=""
 mr_title=""
 projectAlias=""
+wip=""
 
 for i in "${!params[@]}"; do
     case "${params[$i]}" in
-        -i)
-        mode="interactive"
-        ;;
         -s)
         sourceBranch="${params[$i+1]}"
         ;;
@@ -53,61 +127,72 @@ for i in "${!params[@]}"; do
         targetBranch="${params[$i+1]}"
         ;;
         -a)
-        assignee_user="${params[$i+1]}"
+        assignee_users="${assignee_users}${params[$i+1]}"
         ;;
         -l)
         labels="$labels${params[$i+1]}"
         ;;
         -m)
-        mr_title="$mr_title${params[$i+1]}"
+        mr_title="${params[$i+1]}"
         ;;
         --wip)
-        mr_title="WIP:$mr_title"
+        wip="true"
         ;;
         -in)
-        vcs=$(getProjectVcs ${params[$i+1]})
         projectAlias="${params[$i+1]}"
         ;;
-        --config)
-        sh ${srcDir}/git-mr-config.sh "${configDir}"
+        --cnf)
+        configureGitProjects
         exit 0
         ;;
-        -new-alias)
-        sh ${srcDir}/git-projects-manager.sh --new "${params[$i+1]}"
+        -rm)
+        gpm -rm "${params[$i + 1]}"
         exit 0
         ;;
-        --version)
-        printf "v.4.0\n"
+        --rm)
+        gpm --rm
+        exit 0
+        ;;
+        --ls)
+        gpm --ls
+        exit 0
+        ;;
+        -ae)
+        gpm "${params[$i + 1]}"
+        exit 0
+        ;;
+        --version|--v)
+        printf "v.4.3.0\n"
         exit 0
         ;;
     esac
 done
 
-if [[ "${mode}" == "interactive" ]];then
-    read -p "> [project alias] : " projectAlias
-    read -p "> [Source branch] : " sourceBranch
-    read -p "> [Target branch] : " targetBranch
-    read -p "> [ASSIGN TO (username)] : " assignee_user
-    read -p "> [Title] : " mr_title
-    read -p "> [LABELS (separator=,)] : " labels
-fi
-
 if [[ -z "${targetBranch}" ]]; then
-    printf "\n🚨 Error! Target branch not found! 🚨"
+    printf "\n🚨 Error! Target branch not found!"
     printf "\n👉 Please enter a valide target branch name. Like this: (... -t origin/release ...)\n"
     exit 1;
 fi
 
-if [[ -z "${vcs}" ]];then
-    printf "\n🚨 Error! Version Control System not found! 🚨"
-    printf "\n👉 Please run this command to create new git project alias:"
-    printf "\n👉 git mr --config-alias ALIAS_NAME\n"
-    exit 1; 
+isAliasExist=$(gpm -ae "${projectAlias}")
+
+if [[ -z "${isAliasExist}" ]]; then
+    configureGitProjects
 fi
 
-if [[ "${vcs}" == "Gitlab" ]]; then
+vcs=$(gpm -get "${projectAlias}" "vcs")
+
+if [[ -z "${vcs}" ]];then
+    printf "\n🚨 Error! Version Control System not found!"
+    printf "\n👉 Please run this command to create new git project alias:"
+    printf "\n👉 git mr --new-alias\n"
+    exit 1;
+fi
+
+data=$(prepareData "${sourceBranch}" "${targetBranch}" "${assignee_users}" "${mr_title}" "${labels}" "${wip}" "${projectAlias}" "${vcs}") 
+
+if [[ "${vcs}" == "gitlab" ]]; then
     sh ${srcDir}/git-lmr "${sourceBranch}" "${targetBranch}" "${assignee_user}" "${mr_title}" "${labels}" "${projectAlias}" 
-    elif [[ "${vcs}" == "Github" ]]; then
-        # do call github mr method
-        echo "github ${confDir}/github.conf"
+    elif [[ "${vcs}" == "github" ]]; then
+        sh ${srcDir}/git-hmr "${data}"
 fi
