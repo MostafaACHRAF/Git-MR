@@ -3,143 +3,72 @@
 #@Author : Mostafa ASHARF
 #@email : mostafaegma@wgmail.com
 #@Date : 04/02/2019
-#@Last update : 25/10/2020
-#@Version : 4.0
+#@Last update : 27/12/2020
+#@Version : 4.3.0
 #Developed will listening to piano music \(^_^)/
 
-#git lmr <target_branch[optional;default=dev]>
-#assigned_to : <assigned_to[optional;default=me]>
-#labels : <commit_label(list)[optional;default=java;separator=,]>
-#git lmr -i : interactive mode, this helps you fill the params in an interactive way, (question => response)
+data="${1}"
 
-#======= FUN CONFIG =======
-configFile="${configDir}/gitlab.conf"
-projectsFile="${configDir}/git.projects"
-projectAlias="${6}"
+projectId=$(gpm -getj projectId "${data}")
+accessToken=$(gpm -getj accessToken "${data}")
+username=`gpm -getj username "${data}"`
+repo=`gpm -getj repo "${data}"`
+owner=`gpm -getj owner "${data}"`
+sourceBranch=`gpm -getj sourceBranch "${data}"`
+targetBranch=`gpm -getj targetBranch "${data}"`
+title=`gpm -getj mrTitle "${data}"`
+labels=`gpm -getj labels "${data}"`
+assignee=`gpm -getj assigneeUser "${data}"`
+domainName=`gpm -getj domainName "${data}"`
+projectsUrl=https://${domainName}/api/v4/projects
+usersUrl=https://${domainName}/api/v4/users
 
-if [[ ! -f "${configFile}" || -z "${configFile}" ]]; then
-  printf "\n⚠️ Gitlab integration not configured yet! ⚠️\n"
-  sh ${srcDir}/gitlab-config.sh "${configFile}"
+#==============================================================================================================================
+
+assigneeId=`curl --header "Private-Token:${accessToken}" --silent "${usersUrl}?username=${assignee}" | jq '.[0].id'`
+authorId=`curl --header "Private-Token:${accessToken}" --silent "${usersUrl}?username=${username}" | jq '.[0].id'`
+
+if [[ -z "${authorId}" || -z "${assigneeId}" ]]; then
+  log "error" "Error! authorId and assigneeId can't be null."
+  log "info" "👉 Check your configuration in: ${gitProjects}"
 fi
 
-params=()
+body="{
+  \"id\": ${projectId},
+  \"source_branch\": \"${sourceBranch}\",
+  \"target_branch\": \"${targetBranch}\",
+  \"remove_source_branch\": true,
+  \"title\": \"${title}\",
+  \"assignee_id\": ${assigneeId},
+  \"author_id\":${authorId},
+  \"labels\": \"${labels}\"
+}"
 
-printf "\n==> Load git projects data from: [${projectsFile}]..."
-while read line; do
-  if [[ "${line}" =~ (.+)=(.+) ]]; then
-    params+=("${BASH_REMATCH[1]}=${BASH_REMATCH[2]}")
-  fi
-done < "${projectsFile}"
+echo "${body}"
 
-printf "\n==> Load gitlab configuration from: [${configFile}]..."
-while read line; do
-  if [[ "${line}" =~ ^([^\#=\s]+)\s*=(.*) ]]; then
-    params+=("${BASH_REMATCH[1]}=${BASH_REMATCH[2]}")
-  fi
-done < "${configFile}"
-
-getConf() {
-  # $1 : key
-  for param in "${params[@]}"; do
-    key=${param%%=*}
-    value=${param##*=}
-    if [[ "${1}" == "${key}" ]]; then
-      echo "${value}"
-      break;
-    fi
-  done
-}
-
-GITLAB_PROJECT_NAME=$(getConf "${projectAlias}_project_name")
-GITLAB_PROJECT_ID=$(getConf "${projectAlias}_project_id")
-GITLAB_URL=$(getConf "GITLAB_URL")
-PRIVATE_TOKEN=$(getConf "PRIVATE_TOKEN")
-GITLAB_PROJECTS_URL=$(getConf "GITLAB_PROJECTS_URL")
-GITLAB_USERS_URL=$(getConf "GITLAB_USERS_URL")
-GITLAB_MRS_URL=$(getConf "GITLAB_MRS_URL")
-ACTUAL_USER_EMAIL=$(getConf "USER_EMAIL")
-
-if [[ -z "${GITLAB_PROJECT_NAME}" || -z "${GITLAB_PROJECT_ID}" ]]; then
-  printf "\n🚨 Error! Invalid project alias! 🚨"
-  printf "\n👉 Create new project alias using > git mr --config-alias\n" 
-  exit 1;
-fi
-
-#======= PREPARE FUN PARAMS =======
-
-SOURCE_BRANCH="${1}"
-TARGET_BRANCH="${2}"
-ASSIGNEE_USER="${3}"
-MR_TITLE="${4}"
-LABELS="${5}"
-
-DEFAULT_SOURCE_BRANCH=$(git rev-parse --abbrev-ref HEAD)
-DEFAULT_MR_TITLE=$(git log --pretty=format:%s HEAD | head -n 1)
-
-if [[ -z "${ACTUAL_USER_EMAIL}" ]]; then
-  printf "\n🚨 Error! Invalid user email! 🚨"
-  printf "👉 Use : (git mr --config) to add your gitlab email."
-  exit 1;
-fi
-
-ACTUAL_USER_USERNAME=${ACTUAL_USER_EMAIL%%@*}
-OS="LINUX"
-
-if [[ -z "${SOURCE_BRANCH}" ]]; then
-  SOURCE_BRANCH="${DEFAULT_SOURCE_BRANCH}"
-fi
-
-if [[ -z "${ASSIGNEE_USER}" ]]; then
-  ASSIGNEE_USER=${ACTUAL_USER_USERNAME}
-fi
-
-if [[ -z "${MR_TITLE}" ]]; then
-  MR_TITLE="${DEFAULT_MR_TITLE}"
-  else
-    MR_TITLE="${MR_TITLE}"
-fi
-
-#======= Main fun =======
-printf "\n"
-#TARGET_GITLAB_PROJECT_ID=`curl --header "Private-Token:${PRIVATE_TOKEN}" --silent "${GITLAB_PROJECTS_URL}" | jq '.[] | select(.path_with_namespace=="'${GITLAB_PROJECT_NAME}'") | .id'`
-TARGET_GITLAB_PROJECT_ID="${GITLAB_PROJECT_ID}"
-ASSIGNEE_GITLAB_USER_ID=`curl --header "Private-Token:${PRIVATE_TOKEN}" --silent "${GITLAB_USERS_URL}?username=${ASSIGNEE_USER}" | jq '.[0].id'`
-AUTHOR_ID=`curl --header "Private-Token:${PRIVATE_TOKEN}" --silent "${GITLAB_USERS_URL}?username=${ACTUAL_USER_USERNAME}" | jq '.[0].id'`
-
-if [[ ! -z "${AUTHOR_ID}" && ! -z "${ASSIGNEE_GITLAB_USER_ID}" ]]; then
-  BODY="{
-    \"id\": ${TARGET_GITLAB_PROJECT_ID},
-    \"source_branch\": \"${SOURCE_BRANCH}\",
-    \"target_branch\": \"${TARGET_BRANCH}\",
-    \"remove_source_branch\": true,
-    \"title\": \"${MR_TITLE}\",
-    \"assignee_id\": ${ASSIGNEE_GITLAB_USER_ID},
-    \"author_id\":${AUTHOR_ID},
-    \"labels\": \"${LABELS}\"
-  }"
-
-  echo "${BODY}"
-
-  read -p "> Create a merge request for [${SOURCE_BRANCH}] into [${TARGET_BRANCH}] [y/n]?" PROCEED
+read -p "> Create a merge request for [${sourceBranch}] into [${targetBranch}] [y/n]?" proceed
   
-  case "${PROCEED}" in
-    [yY]* )
-    curl -X POST "${GITLAB_PROJECTS_URL}/${TARGET_GITLAB_PROJECT_ID}/merge_requests" \
-         --header "PRIVATE-TOKEN:${PRIVATE_TOKEN}" \
-         --header "Content-Type: application/json" \
-         --data "${BODY}";
+case "${proceed}" in
+  [yY]*)
+    curl -X POST "${projectsUrl}/${projectId}/merge_requests" \
+        --header "PRIVATE-TOKEN:${accessToken}" \
+        --header "Content-Type: application/json" \
+        --data "${body}"
 
-    CREATED_MR_URL="${GITLAB_PROJECTS_URL}${TARGET_GITLAB_PROJECT_ID}/merge_requests?state=opened&order_by=created_at&assignee_id=${ASSIGNEE_GITLAB_USER_ID}&author_id=${AUTHOR_ID}"
-    CREATED_MR_IID=`curl --header "Private-Token:${PRIVATE_TOKEN}" --silent "${CREATED_MR_URL}" | jq '.[0].iid'`
+    mergeRequestUrl="${projectsUrl}/${projectId}/merge_requests?state=opened&order_by=created_at&assignee_id=${assigneeId}&author_id=${authorId}"
+    mergeRequestIID=`curl --header "Private-Token:${accessToken}" --silent "${mergeRequestUrl}" | jq '.[0].iid'`
 
-    if [[ ! -z "${CREATED_MR_IID}" ]]; then
-      xdg-open "${GITLAB_MRS_URL}${CREATED_MR_IID}"
-    else
-      printf "🚨 Error! Something went wrong. This merge request can't be created. 🚨\n"
+    if [[ -z "${mergeRequestIID}" && "${mergeRequestIID}" != null ]]; then
+        log "error" "Error! something went wrong. Merge request failed."
+        exit 1
     fi
+    createdMergeRequestUrl="${projectsUrl}/${projectId}/merge_requests/${mergeRequestIID}"
+    log "success" "🎉🎉🎉 Success! merge request [${mergeRequestIID}] has been created successfully."
+    if [[ ! -z "${isDockerContainer}" ]]; then log "warning" "visit: ${createdMergeRequestUrl}"; else chromium ${createdMergeRequestUrl}; fi
+    exit 0
     ;;
-  esac
-else
-    printf "\n🚨 Error! [ASSIGNEE USER ID:${ASSIGNEE_GITLAB_USERNAME}] And [AUTHOR ID:${AUTHOR_ID}] 🚨"
-    printf "\n👉 Check your access tocken in (${configFile})\n"
-fi
+  *)
+    log "warning" "Merge request canceled."
+    exit 1 
+    ;; 
+esac

@@ -15,13 +15,10 @@ isDraft=`gpm -getj draft "${data}"`
 labels=`gpm -getj labels "${data}"`
 assignees=`gpm -getj assigneeUsers "${data}"`
 
-echo "owner=${owner}"
-echo "repo=${repo}"
-
 if [[ -z "${username}" || -z "${owner}" || -z "${repo}" || -z "${headBranch}" || -z "${baseBranch}" ]]; then
     errorDetails="{headBranch=${headBranch}, baseBranch=${baseBranch}, owner=${owner},repo=${repo}, username=${username}}"
-    printf "\n🚨 Error! {headBranch, baseBranch, owner, repo} are required! 🚨\n"
-    printf "\n👉 ${errorDetails}\n"
+    log "error" "Error! {headBranch, baseBranch, owner, repo} are required!"
+    log "info" "👉 check your configuration file in : ${gitProjects}"
     exit 1
 fi
 
@@ -30,9 +27,9 @@ labels="\"${labels//,/\",\"}\""
 assignees="\"${assignees//,/\",\"}\""
 
 body="{
-    \"head\":${headBranch},
-    \"base\":${baseBranch},
-    \"title\":${title},
+    \"head\":\"${headBranch}\",
+    \"base\":\"${baseBranch}\",
+    \"title\":\"${title}\",
     \"draft\":${isDraft},
     \"labels\":[${labels}],
     \"assignees\":[${assignees}]
@@ -43,56 +40,57 @@ read -p "?Create pull request of [${headBranch}] by [${baseBranch}]? y/n: " resp
 
 case "${response}" in
     y|Y)
-    pullsUrl="https://api.github.com/repos/${owner}/${repo}/pulls"
-    issuesUrl="https://api.github.com/repos/${owner}/${repo}/issues"
+        pullsUrl="https://api.github.com/repos/${owner}/${repo}/pulls"
+        issuesUrl="https://api.github.com/repos/${owner}/${repo}/issues"
 
-    printf "\n==> Create new pull request..."
-    errors=`curl -s -o \
-        -X POST \
-        -H "Accept: application/vnd.github.v3+json" \
-        -H "Authorization: token ${accessToken}" \
-        ${pullsUrl} \
-        -d "${body}" | jq .errors[0].message`
+        printf "\n==> Create new pull request [${pullsUrl}]..."
+        errors=`curl -s -o \
+            -X POST \
+            -H "Accept: application/vnd.github.v3+json" \
+            -H "Authorization: token ${accessToken}" \
+            ${pullsUrl} \
+            -d "${body}" | jq .errors[0].message`
 
 
-    if [[ "${errors}" != "null" ]]; then
-        printf "\n🚨 Error! Failed to create pull request! 🚨\n"
-        printf "${errors}\n"
-        exit 1
-    fi
+        if [[ "${errors}" != "null" ]]; then
+            log "error" "Error! failed to create pull request."
+            log "info" "👉 ${errors}"
+            exit 1
+        fi
 
-    sleep 5s
+        sleep 3s
 
-    printf "Done.\n==> Get pull request id..."
-    pullId=`curl -s -o -H "Accept: application/vnd.github.v3+json" "${pullsUrl}?status=open&head=${headBranch}" | jq .[0].number`
-    pullUrl="https://github.com/${owner}/${repo}/pull/${pullId}"
+        printf "Done.\n==> Get pull request id..."
+        pullId=`curl -s -o -H "Accept: application/vnd.github.v3+json" "${pullsUrl}?status=open&head=${headBranch}" | jq .[0].number`
+        pullUrl="https://github.com/${owner}/${repo}/pull/${pullId}"
 
-    if [[ "${pullId}" == "null" ]]; then
-        printf "\n🚨 Error! Failed to get pull request: [${pullId}]! After waiting for 5 seconds. 🚨\n"
-        exit 1
-    fi
+        if [[ "${pullId}" == "null" ]]; then
+            log "error" "Error! failed to get pull request: [${pullId}]! After waiting for 3 seconds."
+            exit 1
+        fi
 
-    printf "Done.\n==> Set labels and assignees..."
-    errors=`curl -s -o \
-        -X PATCH \
-        -H "Accept: application/vnd.github.v3+json" \
-        -H "Authorization: token ${accessToken}" \
-        ${issuesUrl}/${pullId} \
-        -d "${body}" | jq .errors[0].message`
+        printf "Done.\n==> Set labels and assignees..."
+        errors=`curl -s -o \
+            -X PATCH \
+            -H "Accept: application/vnd.github.v3+json" \
+            -H "Authorization: token ${accessToken}" \
+            ${issuesUrl}/${pullId} \
+            -d "${body}" | jq .errors[0].message`
 
-    if [[ "${errors}" != "null" ]]; then
-        printf "\n🚨 Error! Failed to set (labels) and (assignees) fields into pull request: [${pullId}]! 🚨\n"
-        printf "${errors}\n"
-        exit 1
-    fi
+        if [[ "${errors}" != "null" ]]; then
+            log "error" "Error! failed to set (labels) and (assignees) fields into pull request: [${pullId}]."
+            log "info" "👉 ${errors}"
+            exit 1
+        fi
 
-    printf "Done.\n🎉🎉🎉 Success! pull request [${pullId}] is created successfully.\n"
-    if [[ ! -z "${isDockerContainer}" ]]; then printf "visit: ${pullUrl}\n"; else xdg-open "${pullUrl}"; fi
-    exit 0
-    ;; 
+        printf "Done."
+        log "success" "🎉🎉🎉 Success! pull request [${pullId}] has been created successfully."
+        if [[ ! -z "${isDockerContainer}" ]]; then log "warning" "visit: ${pullUrl}"; else chromium ${pullUrl}; fi
+        exit 0
+        ;; 
     *)
-    printf "\n👉 Pull request canceled.\n"
-    exit 1 
-    ;; 
+        log "warning" "Pull request canceled."
+        exit 1 
+        ;; 
 esac
     

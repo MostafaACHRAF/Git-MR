@@ -1,15 +1,15 @@
 #!/bin/bash
 
-export appDir="."
-export srcDir="src"
+export appDir="/bin/gitmr"
+export srcDir="${appDir}/src"
 export utilsDir="${appDir}/utils"
 export isDockerContainer=$(awk -F/ '$2 == "docker" {print "true"; exit 0}' /proc/1/cgroup )
-
 if [[ "${isDockerContainer}" == "true" ]]; then
   export configDir="/conf"
   else
     export configDir="${appDir}/conf"
 fi
+export gitProjects="${configDir}/git.projects"
 
 ######################################################################################################
 
@@ -26,7 +26,8 @@ configureGitProjects() {
         exit 0;
         ;;
         *)
-        printf "🚨Error! Invalid vcs: [$vcs].\n"
+        log "error" "Error! invalid version control system [${vcs}]."
+        exit 1
         ;;
     esac
 }
@@ -41,12 +42,13 @@ prepareData() {
     projectAlias="${7}"
     vcs="${8}"
     draft=false
-
+    
     # Get project's data from "${configDir}/git.projects"
-    accessToken=$(gpm -get "${projectAlias}" "token")
+    accessToken=`gpm -get "${projectAlias}" token`
     username=$(gpm -get "${projectAlias}" "username")
     owner=$(gpm -get "${projectAlias}" "owner")
     repo=$(gpm -get "${projectAlias}" "repo")
+    domainName=$(gpm -get "${projectAlias}" "domainName")
 
     if [ -z "${sourceBranch}" ]; then
         # default sourceBranch is : the actual local branch
@@ -76,7 +78,6 @@ prepareData() {
         esac
     fi
 
-
     data="{
         \"username\":\"${username}\",
         \"accessToken\": \"${accessToken}\",
@@ -88,7 +89,8 @@ prepareData() {
         \"labels\": \"${labels}\",
         \"assigneeUser\": \"${assignee_user}\",
         \"assigneeUsers\": \"${assignee_users}\",
-        \"owner\": \"${owner}\"
+        \"owner\": \"${owner}\",
+        \"domainName\":\"${domainName}\"
     }"
     echo "${data}"
 }
@@ -102,6 +104,74 @@ gpm() {
 
 export -f gpm
 
+log() {
+    type="${1}"
+    msg="${2}"
+    case "${type}" in
+        error)
+            colorCode=31
+            ;;
+        success)
+            colorCode=32
+            ;;
+        warning)
+            colorCode=33
+            ;;
+        info)
+            colorCode=37
+            ;;
+    esac
+    echo -e "\e[${colorCode}m${msg}\e[0m"
+}
+
+export -f log
+
+help() {
+    log "info" "1- git mr -in {alias} -s {sourceBranch} -t {targetBranch} -a {assigneeUsers} -l {labels} -m {title} --wip"
+    log "info" "    -in {alias}: git project alias (required)"
+    log "info" "    -t {targetBranch}: target branch (required)"
+    log "info" "    -s {sourceBranch}: source branch (optional). Default = actual local branch"
+    log "info" "    -a {assigneeUsers}: assignee users, separated by ',' (optional). Default = actual user"
+    log "info" "    -l {labels}: labels, separated by ',' (optional)"
+    log "info" "    -m {title}: title (optional). Default = latest commit's title"
+    log "info" "    --wip: indicates if 'work in progress' (optional). Default = false"
+    log "info" "2- git mr --cnf: creates or updates project alias in (${gitProjects})"
+    log "info" "3- git mr -rm {alias}: delete one project alias in (${gitProjects})"
+    log "info" "4- git mr --rm: delete all project alias in (${gitProjects})"
+    log "info" "5- git mr --ls: list all project alias in (${gitProjects})"
+    log "info" "6- git mr -ae {alias}: check if an alias exist in (${gitProjects}). If so this function will return 'exist'"
+    log "info" "7- git mr --version: version"
+    log "info" "8- git mr -show {alias}: display alias data from (${gitProjects})."
+    log "info" "9- git mr help: help"
+}
+
+export -f help
+
+purge() {
+    log "info" "Uninstall git mr..."
+    read -p "? Do you really want to continue? [y/n]: " response
+    case "${response}" in
+        y|Y)
+            zshrc=~/.zshrc
+            bashrc=~/.bashrc
+            target="export PATH=\$PATH:${appDir//\//\\/}"
+            echo "target = ${target}"
+            printf "\n==> Clean up ${zshrc}..."
+            sed -i -E 's/'"${target}"'//g' ${zshrc}
+            if [[ $? == 1 ]]; then log "error" "Error! failed."; exit 1; else printf "Done ✔\n"; fi
+            printf "\n==> Clean up ${bashrc}..."
+            sed -i -E 's/'"${target}"'//g' ${bashrc}
+            if [[ $? == 1 ]]; then log "error" "Error! failed."; exit 1; else printf "Done ✔\n"; fi
+            printf "\n==> Delete ${appDir}..."
+            sudo rm -r ${appDir}
+            if [[ $? == 1 ]]; then log "error" "Error! failed."; exit 1; else printf "Done ✔\n"; fi
+            log "success" "git mr has been successfully removed."
+            exit 0
+            ;;
+    esac
+}
+
+export -f purge
 #############################################################################################
 
 params=()
@@ -121,56 +191,64 @@ wip=""
 for i in "${!params[@]}"; do
     case "${params[$i]}" in
         -s)
-        sourceBranch="${params[$i+1]}"
-        ;;
+            sourceBranch="${params[$i+1]}"
+            ;;
         -t)
-        targetBranch="${params[$i+1]}"
-        ;;
+            targetBranch="${params[$i+1]}"
+            ;;
         -a)
-        assignee_users="${assignee_users}${params[$i+1]}"
-        ;;
+            assignee_users="${assignee_users}${params[$i+1]}"
+            ;;
         -l)
-        labels="$labels${params[$i+1]}"
-        ;;
+            labels="$labels${params[$i+1]}"
+            ;;
         -m)
-        mr_title="${params[$i+1]}"
-        ;;
+            mr_title="${params[$i+1]}"
+            ;;
         --wip)
-        wip="true"
-        ;;
+            wip="true"
+            ;;
         -in)
-        projectAlias="${params[$i+1]}"
-        ;;
+            projectAlias="${params[$i+1]}"
+            ;;
         --cnf)
-        configureGitProjects
-        exit 0
-        ;;
+            configureGitProjects
+            exit 0
+            ;;
         -rm)
-        gpm -rm "${params[$i + 1]}"
-        exit 0
-        ;;
+            gpm -rm "${params[$i + 1]}"
+            exit 0
+            ;;
         --rm)
-        gpm --rm
-        exit 0
-        ;;
+            gpm --rm
+            exit 0
+            ;;
         --ls)
-        gpm --ls
-        exit 0
-        ;;
+            gpm --ls
+            exit 0
+            ;;
         -ae)
-        gpm "${params[$i + 1]}"
-        exit 0
-        ;;
+            gpm "${params[$i + 1]}"
+            exit 0
+            ;;
         --version|--v)
-        printf "v.4.3.0\n"
-        exit 0
-        ;;
+            echo `cat ${appDir}/version`
+            exit 0
+            ;;
+        --help)
+            help
+            exit 0
+            ;;
+        --purge)
+            purge
+            ;;
     esac
 done
 
 if [[ -z "${targetBranch}" ]]; then
-    printf "\n🚨 Error! Target branch not found!"
-    printf "\n👉 Please enter a valide target branch name. Like this: (... -t origin/release ...)\n"
+    log "error" "Error! target branch not found."
+    log "info" "👉 Run this command for help:"
+    log "info" "👉 git mr --help"
     exit 1;
 fi
 
@@ -183,16 +261,25 @@ fi
 vcs=$(gpm -get "${projectAlias}" "vcs")
 
 if [[ -z "${vcs}" ]];then
-    printf "\n🚨 Error! Version Control System not found!"
-    printf "\n👉 Please run this command to create new git project alias:"
-    printf "\n👉 git mr --new-alias\n"
+    log "error" "Error! version control system not found."
+    log "info" "👉 Run this command to configure your git projects:"
+    log "info" "👉 git mr --cnf"
     exit 1;
 fi
 
 data=$(prepareData "${sourceBranch}" "${targetBranch}" "${assignee_users}" "${mr_title}" "${labels}" "${wip}" "${projectAlias}" "${vcs}") 
 
-if [[ "${vcs}" == "gitlab" ]]; then
-    sh ${srcDir}/git-lmr "${sourceBranch}" "${targetBranch}" "${assignee_user}" "${mr_title}" "${labels}" "${projectAlias}" 
-    elif [[ "${vcs}" == "github" ]]; then
+case "${vcs}" in
+    gitlab)
+        sh ${srcDir}/git-lmr "${data}" 
+        exit 0
+    ;;
+    github)
         sh ${srcDir}/git-hmr "${data}"
-fi
+        exit 0
+    ;;
+    *)
+        log "error" "Error! Unsupported version control system."
+        exit 1
+    ;;
+esac
