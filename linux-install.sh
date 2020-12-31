@@ -6,7 +6,7 @@
 #@Version : 4.0
 #Developed will listening to piano music \(^_^)/
 
-VERSION=4.0
+VERSION=`cat ./version`
 echo "#########################################"
 echo "###/  __\##(_)#|_   _|##| \##/ |#|  _ \##"
 echo "##| |############| |####|  \/  |#| |#||##"
@@ -15,13 +15,31 @@ echo "##\_____|##|_|###|_|#()#|_|##|_|#|_|#|_\#"
 echo "#########################################"
 printf "V.${VERSION}\n\n"
 #@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@ CONFIG @@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@
-SRC_PATH="/bin/GitMR"
+SRC_PATH="/bin/gitmr"
 PKG_MANAGER="NONO"
 ZSH_CONF_PATH=~/.zshrc
 BASH_CONF_PATH=~/.bashrc
 ZSH_BASH_VAR_PATH="PATH=\$PATH:${SRC_PATH}"
-# ZSH_BASH_VAR_PATH_REGEX="PATH=\\\$PATH:${SRC_PATH//'/'/'\/'}"
 
+log() {
+    type="${1}"
+    msg="${2}"
+    case "${type}" in
+        error)
+            colorCode=31
+            ;;
+        success)
+            colorCode=32
+            ;;
+        warning)
+            colorCode=33
+            ;;
+        info)
+            colorCode=37
+            ;;
+    esac
+    echo -e "\e[${colorCode}m${msg}\e[0m"
+}
 #@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@ UTILS FUNCTIONS @@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@
 SUCCESS_RATE=0
 TOTAL_STEPS=2
@@ -34,7 +52,7 @@ logByStepAndState() {
     if [[ "${2}" == true ]];then
       ((SUCCESS_RATE++))
       else
-        echo "🚨 Error! Unsupported script shell. We support only ZSH and BASH shell scripts 🚨"
+        log "error" "Error! Unsupported script shell. We support only ZSH and BASH shell scripts"
         remainingSteps+=("👉 Add [${SRC_PATH}] to your variable PATH.")
     fi
     ;;
@@ -42,12 +60,12 @@ logByStepAndState() {
     if [[ "${2}" == true  ]];then
       ((SUCCESS_RATE++))
       else
-        echo "🚨 Error! Looks like your package manager is not supported, or something went wrong will installing [jq]. 🚨"
+        log "error" "Error! Looks like your package manager is not supported, or something went wrong will installing [jq]."
         remainingSteps+=("👉 Install [jq] manually: https://stedolan.github.io/jq/download/")
     fi
     ;;
   esac
-  echo "Step(${SUCCESS_RATE}/${TOTAL_STEPS}) Done ✔"
+  log "success" "Step(${SUCCESS_RATE}/${TOTAL_STEPS}) Done ✔"
 }
 
 appendStringToFile() {
@@ -66,23 +84,19 @@ appendStringToFile() {
 #   sed -i 's/'"^${ZSH_BASH_VAR_PATH_REGEX}"'//g' "${1}"
 # }
 
-# configureOS4SrcScript() {
-#   echo "==> Add detected OS (Linux) to [${SRC_SCRIPT}]..."
-#   sudo sed -i -E 's/^(OS=).*/\1"LINUX"/g' "${SRC_SCRIPT_PATH}"
-# }
 
 #@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@ MAIN FUN @@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@
 IS_STEP1_SUCCEEDED=false
 IS_STEP2_SUCCEEDED=false
 
-echo "Git-MR installation..."
+log "info" "Git-MR installation..."
 
 #Add ${SRC_PATH} to path [~/.zshrc, and ~/.bashrc]
 #ToDo...for Other SHELLs [$KSH_VERSION,$FCEDIT,$PS3]
 printf "\n"
 echo "==> Update PATH variable..."
-appendStringToFile "${ZSH_BASH_VAR_PATH}" "${ZSH_CONF_PATH}"
-appendStringToFile "${ZSH_BASH_VAR_PATH}" "${BASH_CONF_PATH}"
+appendStringToFile "export ${ZSH_BASH_VAR_PATH}" "${ZSH_CONF_PATH}"
+appendStringToFile "export ${ZSH_BASH_VAR_PATH}" "${BASH_CONF_PATH}"
 logByStepAndState "1" "${IS_STEP1_SUCCEEDED}"
 
 #Download and install jq on [debian-base, and other distros...]
@@ -109,11 +123,11 @@ logByStepAndState "2" "${IS_STEP2_SUCCEEDED}"
 
 printf "\n"
 if [[ ${SUCCESS_RATE} -eq ${TOTAL_STEPS} ]]; then
-  echo "🎉🎉🎉 GIT-MR has been installed successfully. Enjoy 🎉🎉🎉"
+  log "success" "🎉🎉🎉 {{git mr}} has been installed successfully. Enjoy it 😸"
   else
-    echo "🚨 Installation not complete! 🚨"
-    echo "👉Please complete the remaining steps manually."
-    echo "👉For more informations visit our github repository: https://github/MostafaACHRAF/Git-MR "
-    echo "Remaining steps: [${remainingSteps[@]}]"
+    log "warning" "Error! Installation went through some issues."
+    log "info" "👉 Please complete the remaining steps manually."
+    log "info" "👉 For more informations visit our github repository: https://github/MostafaACHRAF/Git-MR "
+    log "info" "Remaining steps: [${remainingSteps[@]}]"
 fi
 printf "\n"

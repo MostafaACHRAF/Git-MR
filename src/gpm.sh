@@ -1,12 +1,10 @@
 #!/bin/bash
 # Git Projects Manager
 
-gitProjects="${configDir}/git.projects"
-
 if [[ ! -f "${gitProjects}" ]]; then printf "" > "${gitProjects}"; fi
 
 githubFields=(alias username token owner repo vcs)
-gitlabFields=(alias username project_name token project_id vcs)
+gitlabFields=(alias username token projectId domainName vcs)
 
 getFormatedFieldValue() {
     fieldName=${1}
@@ -44,7 +42,9 @@ createOrUpdateAliasFields() {
             printf "${alias}_${field}=${fieldValue}\n" >> "${gitProjects}"
             else
                 printf "==> Update [${field}] in [${alias}] alias..."
-                sed -i -E 's/'"(${alias}_${field}=).*"'/\1'"${fieldValue//\//\\/}"'/g' "${gitProjects}"
+                if [[ ! -z "${fieldValue}" ]]; then
+                    sed -i -E 's/'"(${alias}_${field}=).*"'/\1'"${fieldValue//\//\\/}"'/g' "${gitProjects}"
+                fi
         fi
         if [[ $? == 1 ]]; then printf "Failed!\n"; exit 1; else printf "Done ✔️\n"; fi
     done
@@ -57,7 +57,10 @@ createOrUpdateGitProjectAlias() {
     aliasAlreadyExist=$(isAliasExist "${alias}")
     if [[ -z "${aliasAlreadyExist}" ]]; then startNewAlias "${alias}"; action="add"; else action="update"; fi
 
-    if [[ "${vcs}" != "github" && "${vcs}" != "gitlab" ]]; then printf "🚨 Error! Unsupported vcs: [$vcs]! 🚨\n"; exit 1; fi
+    if [[ "${vcs}" != "github" && "${vcs}" != "gitlab" ]]; then 
+        log "error" "Error! Unsupported version control system [$vcs].";
+        exit 1
+    fi
 
     createOrUpdateAliasFields "${data}" "${vcs}" "${action}"
 
@@ -70,14 +73,14 @@ removeProject() {
     if [[ ! -z "${projectFound}" ]]; then
         read -p "Remove [${1}] alias configuration? [y/n]:" response 
         case "${response}" in
-        [yY]*)
-            printf "==> Remove [${1}] git configuration..."
-            sed -i -E '/=>'${1}':/,/<=/d' "${gitProjects}"
-            if [[ $? == 1 ]]; then printf "Failed!\n"; exit 1; else printf "Done ✔️\n"; fi
-        ;;
-    esac
+            [yY]*)
+                printf "==> Remove [${1}] git configuration..."
+                sed -i -E '/=>'${1}':/,/<=/d' "${gitProjects}"
+                if [[ $? == 1 ]]; then printf "Failed!\n"; exit 1; else printf "Done ✔️\n"; fi
+                ;;
+        esac
         else
-            printf "🚨 Error! Project not found! 🚨\n"
+            log "error" "Error! project alias not found."
     fi
 }
 
@@ -91,22 +94,14 @@ removeAllProjects() {
     esac
 }
 
-help() {
-    printf "Alias not found!\n"
-    printf "Invalid command!\n"
-    printf "Possible options:\n"
-    printf "  --new {project_uid}\n"
-    printf "  --rm {project_uid}\n"
-    printf "  --remove-all\n"
-}
-
 listAllProjects() {
     projects=()
     while read line; do
         if [[ "${line}" =~ \=\>.+: ]]; then
             line=${line//=>/}
             line=${line//:/}
-            projects+=("${line}")
+            vcs=`getAliasFieldValue "${line}" "vcs"`
+            projects+=("${line}:(${vcs})")
         fi
     done < "${gitProjects}"
     result=$(echo "${projects[@]}")
@@ -137,12 +132,12 @@ done
 for i in "${!params[@]}"; do
     case "${params[$i]}" in
         -na)
-        if [[ -z "${params[$i + 1]}" ]]; then help; exit 1; fi
+        if [[ -z "${params[$i + 1]}" ]]; then log "error" "Error! project alias can't be empty."; exit 1; fi
         createOrUpdateGitProjectAlias "${params[$i + 1]}"
         exit 0
         ;;
         -rm)
-        if [[ -z "${params[$i + 1]}" ]]; then help; exit 1; fi
+        if [[ -z "${params[$i + 1]}" ]]; then log "error" "Error! project alias can't be empty."; exit 1; fi
         removeProject "${params[$i + 1]}"
         exit 0
         ;;
@@ -167,7 +162,8 @@ for i in "${!params[@]}"; do
         exit 0
         ;;
         *)
-        printf "🚨 Error! command not found! 🚨\n"
+        log "error" "Error! command not found."
+        exit 1
         ;;
     esac
 done

@@ -20,7 +20,7 @@ Git-MR is a fast, safe, and fun way to create git merge requests.<br/>
 # How to install it?
 Copy paste this command into your terminal:<br/>
 ```
-sudo git clone https://github.com/MostafaACHRAF/Git-MR /bin/GitMR && chmod +x /bin/GitMR/*.sh && chmod +x /bin/GitMR/git-* && .linux-install.sh
+sudo git clone https://github.com/MostafaACHRAF/Git-MR /bin/gitmr && chmod +x /bin/gitmr/*.sh && chmod +x /bin/gitmr/git-* && chmod +x /bin/gitmr/src/* && ./linux-install.sh
 ```
 ---
 
