@@ -16,19 +16,17 @@ export gitProjects="${configDir}/git.projects"
 configureGitProjects() {
     node ${utilsDir}/vcs_menu.js
     vcs=$(cat ${configDir}/vcs.log)
-    case "${vcs}" in
-        Gitlab)
-        sh ${srcDir}/gitlab-conf.sh
-        break
-        ;;
-        Github)
-        sh ${srcDir}/github-conf.sh
-        break
-        ;;
-        *)
+    if [ "${vcs}" != "Github" && "${vcs}" != "Gitlab"]; then
         log "error" "Error! invalid version control system [${vcs}]."
         exit 1
-        ;;
+    fi
+    case "${vcs}" in
+        Gitlab)
+            sh ${srcDir}/gitlab-conf.sh
+            ;;
+        Github)
+            sh ${srcDir}/github-conf.sh
+            ;;
     esac
 }
 
