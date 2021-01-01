@@ -160,7 +160,7 @@ purge() {
             if [[ $? == 1 ]]; then log "error" "Error! failed."; exit 1; else printf "Done ✔"; fi
             printf "\n==> Clean up ${bashrc}..."
             sed -i -E 's/'"${target}"'//g' ${bashrc}
-            if [[ $? == 1 ]]; then log "error" "Error! failed."; exit 1; else printf "Done ✔"; fi
+            if [[ $? == 1 ]]; then log "error" "Error! failed."; exit 1; else printf "Done ✔\n"; fi
             sudo rm -rf ${appDir}
             printf "\n==> Delete ${appDir}..."
             if [[ $? == 1 ]]; then log "error" "Error! failed."; exit 1; else printf "Done ✔\n"; fi
