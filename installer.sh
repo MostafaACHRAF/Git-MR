@@ -6,15 +6,6 @@
 #@Version : 4.0
 #Developed will listening to piano music \(^_^)/
 
-VERSION=`cat ./version`
-echo "#########################################"
-echo "###/  __\##(_)#|_   _|##| \##/ |#|  _ \##"
-echo "##| |############| |####|  \/  |#| |#||##"
-echo "##| |#\ _\#| |###| |####| |\/| |#|  _ \##"
-echo "##\_____|##|_|###|_|#()#|_|##|_|#|_|#|_\#"
-echo "#########################################"
-printf "V.${VERSION}\n\n"
-#@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@ CONFIG @@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@
 APP_DIR=/bin/gitmr
 UTILS_DIR=${APP_DIR}/utils
 SRC_DIR=${APP_DIR}/src
@@ -24,6 +15,15 @@ ZSH_CONF_PATH=~/.zshrc
 BASH_CONF_PATH=~/.bashrc
 ZSH_BASH_VAR_PATH="PATH=\$PATH:${APP_DIR}"
 
+VERSION=`cat ${APP_DIR}/version`
+echo "#########################################"
+echo "###/  __\##(_)#|_   _|##| \##/ |#|  _ \##"
+echo "##| |############| |####|  \/  |#| |#||##"
+echo "##| |#\ _\#| |###| |####| |\/| |#|  _ \##"
+echo "##\_____|##|_|###|_|#()#|_|##|_|#|_|#|_\#"
+echo "#########################################"
+printf "${VERSION}\n\n"
+#@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@ CONFIG @@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@
 log() {
     type="${1}"
     msg="${2}"
@@ -152,9 +152,6 @@ sudo chmod +x ${UTILS_DIR}/*.js
 sudo chmod 777 ${CONF_DIR}
 if [[ $? != 0 ]]; then IS_STEP4_SUCCEEDED=false; fi 
 logByStepAndState "4" "${IS_STEP4_SUCCEEDED}"
-
-source ~/.zshrc
-source ~/.bashrc
 
 printf "\n"
 if [[ ${SUCCESS_RATE} -eq ${TOTAL_STEPS} ]]; then
