@@ -126,7 +126,7 @@ log() {
 
 export -f log
 
-help() {
+helper() {
     log "info" "1- git mr -in {alias} -s {sourceBranch} -t {targetBranch} -a {assigneeUsers} -l {labels} -m {title} --wip"
     log "info" "    -in {alias}: git project alias (required)"
     log "info" "    -t {targetBranch}: target branch (required)"
@@ -145,7 +145,7 @@ help() {
     log "info" "9- git mr help: help"
 }
 
-export -f help
+export -f helper
 
 purge() {
     log "info" "Uninstall {{git mr}}..."
@@ -235,7 +235,7 @@ for i in "${!params[@]}"; do
             exit 0
             ;;
         --help)
-            help
+            helper
             exit 0
             ;;
         --purge)
