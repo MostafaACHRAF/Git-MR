@@ -76,6 +76,7 @@ logByStepAndState() {
           log "error" "Error! npm install failed."
           remainingSteps+=("👉 Please, check your network. Or run 'sudo npm install' into ${UTILS_DIR}")
       fi
+      ;;
     4)
       if [[ ${state} == true ]]; then
         ((SUCCESS_RATE++))
@@ -84,6 +85,7 @@ logByStepAndState() {
           remainingSteps+=("👉 Run: 'sudo chmod +x' on: ${SRC_DIR}/*, ${APP_DIR}/git-mr, ${UTILS_DIR}/*.js")
           remainingSteps+=("👉 Run: 'sudo chmod 777' on: ${CONF_DIR}/*")
       fi
+      ;;
   esac
   log "success" "Step(${SUCCESS_RATE}/${TOTAL_STEPS}) Done ✔"
 }
