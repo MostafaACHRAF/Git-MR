@@ -78,13 +78,6 @@ appendStringToFile() {
   fi
 }
 
-# removeVariablePathFrom() {
-#   #${1} : FILE_PATH
-#   echo ">> [Delete] : The variable path from : [${1}]..."
-#   sed -i 's/'"^${ZSH_BASH_VAR_PATH_REGEX}"'//g' "${1}"
-# }
-
-
 #@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@ MAIN FUN @@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@
 IS_STEP1_SUCCEEDED=false
 IS_STEP2_SUCCEEDED=false
@@ -123,7 +116,7 @@ logByStepAndState "2" "${IS_STEP2_SUCCEEDED}"
 
 printf "\n"
 if [[ ${SUCCESS_RATE} -eq ${TOTAL_STEPS} ]]; then
-  log "success" "🎉🎉🎉 {{git mr}} has been installed successfully. Enjoy it 😸"
+  log "success" "🎉🎉🎉 {{git mr}} has been successfully installed. Enjoy it 😸"
   else
     log "warning" "Error! Installation went through some issues."
     log "info" "👉 Please complete the remaining steps manually."
