@@ -157,13 +157,13 @@ purge() {
             target="export PATH=\\\$PATH:${appDir//\//\\/}"
             printf "\n==> Clean up ${zshrc}..."
             sed -i -E 's/'"${target}"'//g' ${zshrc}
-            if [[ $? == 1 ]]; then log "error" "Error! failed."; exit 1; else printf "Done ✔\n"; fi
+            if [[ $? == 1 ]]; then log "error" "Error! failed."; exit 1; else printf "Done ✔"; fi
             printf "\n==> Clean up ${bashrc}..."
             sed -i -E 's/'"${target}"'//g' ${bashrc}
-            if [[ $? == 1 ]]; then log "error" "Error! failed."; exit 1; else printf "Done ✔\n"; fi
+            if [[ $? == 1 ]]; then log "error" "Error! failed."; exit 1; else printf "Done ✔"; fi
             sudo rm -rf ${appDir}
             printf "\n==> Delete ${appDir}..."
-            if [[ $? == 1 ]]; then log "error" "Error! failed."; exit 1; else printf "Done ✔\n"; fi
+            if [[ $? == 1 ]]; then log "error" "Error! failed."; exit 1; else printf "Done ✔"; fi
             log "success" "git mr has been successfully removed."
             exit 0
             ;;

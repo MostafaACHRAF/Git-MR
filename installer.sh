@@ -43,7 +43,7 @@ log() {
 }
 #@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@ UTILS FUNCTIONS @@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@
 SUCCESS_RATE=0
-TOTAL_STEPS=3
+TOTAL_STEPS=4
 remainingSteps=()
 
 logByStepAndState() {
@@ -73,6 +73,14 @@ logByStepAndState() {
         else
           log "error" "Error! npm install failed."
           remainingSteps+=("👉 Please, check your network. Or run 'sudo npm install' into ${UTILS_DIR}")
+      fi
+    4)
+      if [[ ${state} == true ]]; then
+        ((SUCCESS_RATE++))
+        else
+          log "error" "Error! permissions configuration failed."
+          remainingSteps+=("👉 Run: 'sudo chmod +x' on: ${SRC_DIR}/*, ${APP_DIR}/git-mr, ${UTILS_DIR}/*.js")
+          remainingSteps+=("👉 Run: 'sudo chmod 777' on: ${CONF_DIR}/*")
       fi
   esac
   log "success" "Step(${SUCCESS_RATE}/${TOTAL_STEPS}) Done ✔"
@@ -128,10 +136,20 @@ sudo npm install
 if [[ $? != 0 ]]; then IS_STEP3_SUCCEEDED=false; fi 
 logByStepAndState "3" "${IS_STEP3_SUCCEEDED}"
 
+# Configure {{git mr}} permissions
+echo "==> Set {{git mr}} permissions..."
+IS_STEP4_SUCCEEDED=true
+sudo chmod +x ${SRC_DIR}/*
+sudo chmod +x ${APP_DIR}/git-mr
+sudo chmod +x ${UTILS_DIR}/*.js
+sudo chmod 777 ${CONF_DIR}/*
+if [[ $? != 0 ]]; then IS_STEP4_SUCCEEDED=false; fi 
+logByStepAndState "4" "${IS_STEP4_SUCCEEDED}"
 
 printf "\n"
 if [[ ${SUCCESS_RATE} -eq ${TOTAL_STEPS} ]]; then
   log "success" "🎉🎉🎉 {{git mr}} has been successfully installed. Enjoy it 😸"
+  log "info" "To check {{git mr}} version, run: git mr --v"
   else
     log "warning" "Error! Installation went through some issues."
     log "info" "👉 Please complete the remaining steps manually."
