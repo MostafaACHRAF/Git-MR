@@ -15,8 +15,10 @@ echo "##\_____|##|_|###|_|#()#|_|##|_|#|_|#|_\#"
 echo "#########################################"
 printf "V.${VERSION}\n\n"
 #@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@ CONFIG @@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@
-APP_DIR="/bin/gitmr"
-UTILS_DIR="${APP_DIR}/utils"
+APP_DIR=/bin/gitmr
+UTILS_DIR=${APP_DIR}/utils
+SRC_DIR=${APP_DIR}/src
+CONF_DIR=${APP_DIR}/conf
 PKG_MANAGER="NONO"
 ZSH_CONF_PATH=~/.zshrc
 BASH_CONF_PATH=~/.bashrc
