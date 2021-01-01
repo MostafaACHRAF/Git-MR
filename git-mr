@@ -148,22 +148,21 @@ help() {
 export -f help
 
 purge() {
-    log "info" "Uninstall git mr..."
+    log "info" "Uninstall {{git mr}}..."
     read -p "? Do you really want to continue? [y/n]: " response
     case "${response}" in
         y|Y)
             zshrc=~/.zshrc
             bashrc=~/.bashrc
-            target="export PATH=\$PATH:${appDir//\//\\/}"
-            echo "target = ${target}"
+            target="export PATH=\\\$PATH:${appDir//\//\\/}"
             printf "\n==> Clean up ${zshrc}..."
             sed -i -E 's/'"${target}"'//g' ${zshrc}
             if [[ $? == 1 ]]; then log "error" "Error! failed."; exit 1; else printf "Done ✔\n"; fi
             printf "\n==> Clean up ${bashrc}..."
             sed -i -E 's/'"${target}"'//g' ${bashrc}
             if [[ $? == 1 ]]; then log "error" "Error! failed."; exit 1; else printf "Done ✔\n"; fi
-            printf "\n==> Delete ${appDir}..."
             sudo rm -rf ${appDir}
+            printf "\n==> Delete ${appDir}..."
             if [[ $? == 1 ]]; then log "error" "Error! failed."; exit 1; else printf "Done ✔\n"; fi
             log "success" "git mr has been successfully removed."
             exit 0
