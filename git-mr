@@ -163,7 +163,7 @@ purge() {
             if [[ $? == 1 ]]; then log "error" "Error! failed."; exit 1; else printf "Done ✔"; fi
             sudo rm -rf ${appDir}
             printf "\n==> Delete ${appDir}..."
-            if [[ $? == 1 ]]; then log "error" "Error! failed."; exit 1; else printf "Done ✔"; fi
+            if [[ $? == 1 ]]; then log "error" "Error! failed."; exit 1; else printf "Done ✔\n"; fi
             log "success" "git mr has been successfully removed."
             exit 0
             ;;
