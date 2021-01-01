@@ -69,7 +69,7 @@ case "${response}" in
             exit 1
         fi
 
-        printf "Done.\n==> Set labels and assignees..."
+        printf "Done ✔\n==> Set labels and assignees..."
         errors=`curl -s -o \
             -X PATCH \
             -H "Accept: application/vnd.github.v3+json" \
@@ -83,7 +83,7 @@ case "${response}" in
             exit 1
         fi
 
-        printf "Done."
+        printf "Done ✔\n"
         log "success" "🎉🎉🎉 Success! pull request [${pullId}] has been created successfully."
         if [[ ! -z "${isDockerContainer}" ]]; then log "warning" "visit: ${pullUrl}"; else chromium ${pullUrl}; fi
         exit 0

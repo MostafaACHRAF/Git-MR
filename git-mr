@@ -19,11 +19,11 @@ configureGitProjects() {
     case "${vcs}" in
         Gitlab)
         sh ${srcDir}/gitlab-conf.sh
-        exit 0;
+        break
         ;;
         Github)
         sh ${srcDir}/github-conf.sh
-        exit 0;
+        break
         ;;
         *)
         log "error" "Error! invalid version control system [${vcs}]."
