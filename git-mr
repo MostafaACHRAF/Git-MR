@@ -163,7 +163,7 @@ purge() {
             sed -i -E 's/'"${target}"'//g' ${bashrc}
             if [[ $? == 1 ]]; then log "error" "Error! failed."; exit 1; else printf "Done ✔\n"; fi
             printf "\n==> Delete ${appDir}..."
-            sudo rm -r ${appDir}
+            sudo rm -rf ${appDir}
             if [[ $? == 1 ]]; then log "error" "Error! failed."; exit 1; else printf "Done ✔\n"; fi
             log "success" "git mr has been successfully removed."
             exit 0
@@ -241,6 +241,7 @@ for i in "${!params[@]}"; do
             ;;
         --purge)
             purge
+            exit 0
             ;;
     esac
 done
@@ -271,11 +272,11 @@ data=$(prepareData "${sourceBranch}" "${targetBranch}" "${assignee_users}" "${mr
 
 case "${vcs}" in
     gitlab)
-        sh ${srcDir}/git-lmr "${data}" 
+        sh ${srcDir}/git-lmr.sh "${data}" 
         exit 0
     ;;
     github)
-        sh ${srcDir}/git-hmr "${data}"
+        sh ${srcDir}/git-hmr.sh "${data}"
         exit 0
     ;;
     *)

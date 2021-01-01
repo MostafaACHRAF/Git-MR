@@ -15,11 +15,12 @@ echo "##\_____|##|_|###|_|#()#|_|##|_|#|_|#|_\#"
 echo "#########################################"
 printf "V.${VERSION}\n\n"
 #@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@ CONFIG @@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@
-SRC_PATH="/bin/gitmr"
+APP_DIR="/bin/gitmr"
+UTILS_DIR="${APP_DIR}/utils"
 PKG_MANAGER="NONO"
 ZSH_CONF_PATH=~/.zshrc
 BASH_CONF_PATH=~/.bashrc
-ZSH_BASH_VAR_PATH="PATH=\$PATH:${SRC_PATH}"
+ZSH_BASH_VAR_PATH="PATH=\$PATH:${APP_DIR}"
 
 log() {
     type="${1}"
@@ -42,28 +43,37 @@ log() {
 }
 #@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@ UTILS FUNCTIONS @@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@
 SUCCESS_RATE=0
-TOTAL_STEPS=2
+TOTAL_STEPS=3
 remainingSteps=()
 
 logByStepAndState() {
   #${1} : STEP ; ${2} : STATE
-  case ${1} in
-    "1" )
-    if [[ "${2}" == true ]];then
-      ((SUCCESS_RATE++))
-      else
-        log "error" "Error! Unsupported script shell. We support only ZSH and BASH shell scripts"
-        remainingSteps+=("👉 Add [${SRC_PATH}] to your variable PATH.")
-    fi
-    ;;
-    "2" )
-    if [[ "${2}" == true  ]];then
-      ((SUCCESS_RATE++))
-      else
-        log "error" "Error! Looks like your package manager is not supported, or something went wrong will installing [jq]."
-        remainingSteps+=("👉 Install [jq] manually: https://stedolan.github.io/jq/download/")
-    fi
-    ;;
+  step=${1}
+  state=${2}
+  case ${step} in
+    1)
+      if [[ ${state} == true ]];then
+        ((SUCCESS_RATE++))
+        else
+          log "error" "Error! Unsupported script shell. We support only ZSH and BASH shell scripts"
+          remainingSteps+=("👉 Add [${APP_DIR}] to your variable PATH.")
+      fi
+      ;;
+    2)
+      if [[ ${state} == true ]];then
+        ((SUCCESS_RATE++))
+        else
+          log "error" "Error! Looks like your package manager is not supported, or something went wrong will installing [jq]."
+          remainingSteps+=("👉 Install [jq] manually: https://stedolan.github.io/jq/download/")
+      fi
+      ;;
+    3)
+      if [[ ${state} == true ]]; then
+        ((SUCCESS_RATE++))
+        else
+          log "error" "Error! npm install failed."
+          remainingSteps+=("👉 Please, check your network. Or run 'sudo npm install' into ${UTILS_DIR}")
+      fi
   esac
   log "success" "Step(${SUCCESS_RATE}/${TOTAL_STEPS}) Done ✔"
 }
@@ -74,25 +84,16 @@ appendStringToFile() {
     if ! grep "${1}" "${2}"; then
       echo "${1}" >> "${2}"
     fi
-    if [[ $? == 0 ]]; then IS_STEP1_SUCCEEDED=true; fi
+    if [[ $? != 0 ]]; then IS_STEP1_SUCCEEDED=false; fi
   fi
 }
 
-# removeVariablePathFrom() {
-#   #${1} : FILE_PATH
-#   echo ">> [Delete] : The variable path from : [${1}]..."
-#   sed -i 's/'"^${ZSH_BASH_VAR_PATH_REGEX}"'//g' "${1}"
-# }
-
-
 #@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@ MAIN FUN @@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@
-IS_STEP1_SUCCEEDED=false
-IS_STEP2_SUCCEEDED=false
+log "info" "Start {{git mr}} installation..."
 
-log "info" "Git-MR installation..."
-
-#Add ${SRC_PATH} to path [~/.zshrc, and ~/.bashrc]
+#Add ${APP_DIR} to path [~/.zshrc, and ~/.bashrc]
 #ToDo...for Other SHELLs [$KSH_VERSION,$FCEDIT,$PS3]
+IS_STEP1_SUCCEEDED=true
 printf "\n"
 echo "==> Update PATH variable..."
 appendStringToFile "export ${ZSH_BASH_VAR_PATH}" "${ZSH_CONF_PATH}"
@@ -118,12 +119,19 @@ done
 
 jq --version
 if [[ $? != 0 ]]; then IS_STEP2_SUCCEEDED=false; fi
-
 logByStepAndState "2" "${IS_STEP2_SUCCEEDED}"
+
+# Run npm install inside /bin/gitmr/utils
+IS_STEP3_SUCCEEDED=true
+cd ${UTILS_DIR}
+sudo npm install
+if [[ $? != 0 ]]; then IS_STEP3_SUCCEEDED=false; fi 
+logByStepAndState "3" "${IS_STEP3_SUCCEEDED}"
+
 
 printf "\n"
 if [[ ${SUCCESS_RATE} -eq ${TOTAL_STEPS} ]]; then
-  log "success" "🎉🎉🎉 {{git mr}} has been installed successfully. Enjoy it 😸"
+  log "success" "🎉🎉🎉 {{git mr}} has been successfully installed. Enjoy it 😸"
   else
     log "warning" "Error! Installation went through some issues."
     log "info" "👉 Please complete the remaining steps manually."
