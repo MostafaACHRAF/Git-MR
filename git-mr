@@ -234,7 +234,7 @@ for i in "${!params[@]}"; do
             echo `cat ${appDir}/version`
             exit 0
             ;;
-        --help)
+        --h)
             helper
             exit 0
             ;;
@@ -248,7 +248,7 @@ done
 if [[ -z "${targetBranch}" ]]; then
     log "error" "Error! target branch not found."
     log "info" "👉 Run this command for help:"
-    log "info" "👉 git mr --help"
+    log "info" "👉 git mr --h"
     exit 1;
 fi
 

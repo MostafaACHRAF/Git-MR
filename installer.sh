@@ -91,9 +91,11 @@ logByStepAndState() {
 }
 
 appendStringToFile() {
-  #${1} : STRING, ${2} : FILE_PATH
+  str="${1}"
+  file="${2}"
+  alreadyAppended=`cat ${file} | grep ${str}`
   if [[ -f "${2}" ]]; then
-    if ! grep "${1}" "${2}"; then
+    if [ -z "${alreadyAppended}" ]; then
       echo "${1}" >> "${2}"
     fi
     if [[ $? != 0 ]]; then IS_STEP1_SUCCEEDED=false; fi
