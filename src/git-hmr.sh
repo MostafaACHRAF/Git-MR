@@ -58,8 +58,6 @@ case "${response}" in
             exit 1
         fi
 
-        sleep 3s
-
         printf "Done.\n==> Get pull request id..."
         pullId=`curl -s -o -H "Accept: application/vnd.github.v3+json" "${pullsUrl}?status=open&head=${headBranch}" | jq .[0].number`
         pullUrl="https://github.com/${owner}/${repo}/pull/${pullId}"
@@ -69,25 +67,30 @@ case "${response}" in
             exit 1
         fi
 
-        printf "Done ✔\n==> Set labels and assignees..."
-        errors=`curl -s -o \
-            -X PATCH \
-            -H "Accept: application/vnd.github.v3+json" \
-            -H "Authorization: token ${accessToken}" \
-            ${issuesUrl}/${pullId} \
-            -d "${body}" | jq .errors[0].message`
+        printf "Done ✔\n"
 
-        if [[ "${errors}" != "null" ]]; then
-            log "error" "Error! failed to set (labels) and (assignees) fields into pull request: [${pullId}]."
-            log "info" "👉 ${errors}"
-            exit 1
+        if [ ! -z "${labels}" || ! -z "${assignees}" ]; then
+            sleep 3s
+            printf "==> Set labels and assignees..."
+            errors=`curl -s -o \
+                -X PATCH \
+                -H "Accept: application/vnd.github.v3+json" \
+                -H "Authorization: token ${accessToken}" \
+                ${issuesUrl}/${pullId} \
+                -d "${body}" | jq .errors[0].message`
+
+            if [[ "${errors}" != "null" ]]; then
+                log "error" "Error! failed to set (labels) and (assignees) fields into pull request: [${pullId}]."
+                log "info" "👉 ${errors}"
+                exit 1
+            fi
+            printf "Done ✔\n"
         fi
 
-        printf "Done ✔\n"
         log "success" "🎉🎉🎉 Success! pull request [${pullId}] has been created successfully."
         if [[ ! -z "${isDockerContainer}" ]]; then log "warning" "visit: ${pullUrl}"; else chromium ${pullUrl}; fi
         exit 0
-        ;; 
+        ;;
     *)
         log "warning" "Pull request canceled."
         exit 1 
