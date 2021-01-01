@@ -92,8 +92,8 @@ logByStepAndState() {
 
 appendStringToFile() {
   str="${1}"
-  file="${2}"
-  alreadyAppended=`cat ${file} | grep ${str}`
+  file=${2}
+  alreadyAppended=`cat ${file} | grep ${APP_DIR}`
   if [[ -f "${2}" ]]; then
     if [ -z "${alreadyAppended}" ]; then
       echo "${1}" >> "${2}"
@@ -110,8 +110,8 @@ log "info" "Start {{git mr}} installation..."
 IS_STEP1_SUCCEEDED=true
 printf "\n"
 echo "==> Update PATH variable..."
-appendStringToFile "${ZSH_BASH_VAR_PATH}" "${ZSH_CONF_PATH}"
-appendStringToFile "${ZSH_BASH_VAR_PATH}" "${BASH_CONF_PATH}"
+appendStringToFile "${ZSH_BASH_VAR_PATH}" ${ZSH_CONF_PATH}
+appendStringToFile "${ZSH_BASH_VAR_PATH}" ${BASH_CONF_PATH}
 logByStepAndState "1" "${IS_STEP1_SUCCEEDED}"
 
 #Download and install jq on [debian-base, and other distros...]
@@ -151,6 +151,9 @@ sudo chmod +x ${UTILS_DIR}/*.js
 sudo chmod 777 ${CONF_DIR}
 if [[ $? != 0 ]]; then IS_STEP4_SUCCEEDED=false; fi 
 logByStepAndState "4" "${IS_STEP4_SUCCEEDED}"
+
+source ${ZSH_CONF_PATH}
+source ${BASH_CONF_PATH}
 
 printf "\n"
 if [[ ${SUCCESS_RATE} -eq ${TOTAL_STEPS} ]]; then
