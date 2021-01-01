@@ -83,7 +83,7 @@ logByStepAndState() {
         else
           log "error" "Error! permissions configuration failed."
           remainingSteps+=("👉 Run: 'sudo chmod +x' on: ${SRC_DIR}/*, ${APP_DIR}/git-mr, ${UTILS_DIR}/*.js")
-          remainingSteps+=("👉 Run: 'sudo chmod 777' on: ${CONF_DIR}/*")
+          remainingSteps+=("👉 Run: 'sudo chmod 777' on: ${CONF_DIR}")
       fi
       ;;
   esac
@@ -146,7 +146,7 @@ IS_STEP4_SUCCEEDED=true
 sudo chmod +x ${SRC_DIR}/*
 sudo chmod +x ${APP_DIR}/git-mr
 sudo chmod +x ${UTILS_DIR}/*.js
-sudo chmod 777 ${CONF_DIR}/*
+sudo chmod 777 ${CONF_DIR}
 if [[ $? != 0 ]]; then IS_STEP4_SUCCEEDED=false; fi 
 logByStepAndState "4" "${IS_STEP4_SUCCEEDED}"
 
