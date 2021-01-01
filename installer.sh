@@ -104,7 +104,6 @@ appendStringToFile() {
 
 #@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@ MAIN FUN @@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@
 log "info" "Start {{git mr}} installation..."
-echo ~
 
 #Add ${APP_DIR} to path [~/.zshrc, and ~/.bashrc]
 #ToDo...for Other SHELLs [$KSH_VERSION,$FCEDIT,$PS3]
