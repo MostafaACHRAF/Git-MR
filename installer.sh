@@ -108,8 +108,8 @@ log "info" "Start {{git mr}} installation..."
 IS_STEP1_SUCCEEDED=true
 printf "\n"
 echo "==> Update PATH variable..."
-appendStringToFile "export ${ZSH_BASH_VAR_PATH}" "${ZSH_CONF_PATH}"
-appendStringToFile "export ${ZSH_BASH_VAR_PATH}" "${BASH_CONF_PATH}"
+appendStringToFile "${ZSH_BASH_VAR_PATH}" "${ZSH_CONF_PATH}"
+appendStringToFile "${ZSH_BASH_VAR_PATH}" "${BASH_CONF_PATH}"
 logByStepAndState "1" "${IS_STEP1_SUCCEEDED}"
 
 #Download and install jq on [debian-base, and other distros...]
