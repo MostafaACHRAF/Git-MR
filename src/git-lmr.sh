@@ -9,6 +9,8 @@
 
 data="${1}"
 
+echo "received data: ${data}"
+
 projectId=$(gpm -getj projectId "${data}")
 accessToken=$(gpm -getj accessToken "${data}")
 username=`gpm -getj username "${data}"`
@@ -62,7 +64,8 @@ case "${proceed}" in
         log "error" "Error! something went wrong. Merge request failed."
         exit 1
     fi
-    createdMergeRequestUrl="${projectsUrl}/${projectId}/merge_requests/${mergeRequestIID}"
+    createdMergeRequestUrl="https://${domainName}/${owner}/${repo}/merge_requests/${mergeRequestIID}"
+    printf "\n"
     log "success" "🎉🎉🎉 Success! merge request [${mergeRequestIID}] has been created successfully."
     if [[ ! -z "${isDockerContainer}" ]]; then log "warning" "visit: ${createdMergeRequestUrl}"; else chromium ${createdMergeRequestUrl}; fi
     exit 0

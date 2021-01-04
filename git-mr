@@ -16,7 +16,7 @@ export gitProjects="${configDir}/git.projects"
 configureGitProjects() {
     node ${utilsDir}/vcs_menu.js
     vcs=$(cat ${configDir}/vcs.log)
-    if [ "${vcs}" != "Github" && "${vcs}" != "Gitlab"]; then
+    if [[ "${vcs}" != "Github" && "${vcs}" != "Gitlab" ]]; then
         log "error" "Error! invalid version control system [${vcs}]."
         exit 1
     fi
@@ -47,6 +47,7 @@ prepareData() {
     owner=$(gpm -get "${projectAlias}" "owner")
     repo=$(gpm -get "${projectAlias}" "repo")
     domainName=$(gpm -get "${projectAlias}" "domainName")
+    projectId=`gpm -get "${projectAlias}" "projectId"`
 
     if [ -z "${sourceBranch}" ]; then
         # default sourceBranch is : the actual local branch
@@ -64,17 +65,15 @@ prepareData() {
     fi
 
 
-    if [ "${wip}" == "true" ]; then
-        case "${vcs}" in
-            "github")
-            draft=true
+    case "${vcs}" in
+        "github")
+            if [ "${wip}" == "true" ]; then draft=true; fi
             ;;
-            "gitlab")
-            mr_title="WIP:${mr_title}"
+        "gitlab")
+            if [ "${wip}" == "true" ]; then mr_title="WIP:${mr_title}"; fi
             assignee_user="${assignee_users%%,*}" # get only the first username
             ;;
-        esac
-    fi
+    esac
 
     data="{
         \"username\":\"${username}\",
@@ -88,7 +87,9 @@ prepareData() {
         \"assigneeUser\": \"${assignee_user}\",
         \"assigneeUsers\": \"${assignee_users}\",
         \"owner\": \"${owner}\",
-        \"domainName\":\"${domainName}\"
+        \"domainName\":\"${domainName}\",
+        \"projectId\":\"${projectId}\",
+        \"vcs\":\"${vcs}\"
     }"
     echo "${data}"
 }
