@@ -1,6 +1,12 @@
 #!/bin/bash
-  
-read -p "> Gitlab project alias: " projectAlias
+
+projectAlias="${1}"
+
+if [ -z "${projectAlias}" ]; then
+  read -p "> Gitlab project alias: " projectAlias
+  else
+    echo "> Gitlab project alias: ${projectAlias}"
+fi
 read -p "> Gitlab username: " username
 read -p "> Gitlab project id: " projectId
 read -p "> Gitlab access token: " accessToken

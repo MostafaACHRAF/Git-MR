@@ -14,6 +14,7 @@ export gitProjects="${configDir}/git.projects"
 ######################################################################################################
 
 configureGitProjects() {
+    alias="${1}"
     node ${utilsDir}/vcs_menu.js
     vcs=$(cat ${configDir}/vcs.log)
     if [[ "${vcs}" != "Github" && "${vcs}" != "Gitlab" ]]; then
@@ -22,10 +23,10 @@ configureGitProjects() {
     fi
     case "${vcs}" in
         Gitlab)
-            sh ${srcDir}/gitlab-conf.sh
+            sh ${srcDir}/gitlab-conf.sh "${alias}"
             ;;
         Github)
-            sh ${srcDir}/github-conf.sh
+            sh ${srcDir}/github-conf.sh "${alias}"
             ;;
     esac
 }
@@ -207,6 +208,7 @@ for i in "${!params[@]}"; do
             wip="true"
             ;;
         -in)
+            if [ -z "${params[$i + 1]}" ]; then log "error" "Error! project alias can't be empty."; exit 1; fi
             projectAlias="${params[$i+1]}"
             ;;
         --cnf)
@@ -254,7 +256,7 @@ fi
 isAliasExist=$(gpm -ae "${projectAlias}")
 
 if [[ -z "${isAliasExist}" ]]; then
-    configureGitProjects
+    configureGitProjects "${projectAlias}"
 fi
 
 vcs=$(gpm -get "${projectAlias}" "vcs")

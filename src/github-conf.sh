@@ -1,6 +1,12 @@
 #!/bin/bash
 
-read -p "> Github project alias: " projectAlias
+projectAlias="${1}"
+
+if [ -z "${projectAlias}" ]; then
+    read -p "> Github project alias: " projectAlias
+    else
+        echo "> Github project alias: ${projectAlias}"
+fi
 read -p "> Github username: " username
 read -p "> Github access token: " accessToken
 read -p "> Github full repository name:" repo
