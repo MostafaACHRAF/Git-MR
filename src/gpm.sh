@@ -132,38 +132,38 @@ done
 for i in "${!params[@]}"; do
     case "${params[$i]}" in
         -na)
-        if [[ -z "${params[$i + 1]}" ]]; then log "error" "Error! project alias can't be empty."; exit 1; fi
-        createOrUpdateGitProjectAlias "${params[$i + 1]}"
-        exit 0
-        ;;
+            if [[ -z "${params[$i + 1]}" ]]; then log "error" "Error! project alias can't be empty."; exit 1; fi
+            createOrUpdateGitProjectAlias "${params[$i + 1]}"
+            exit 0
+            ;;
         -rm)
-        if [[ -z "${params[$i + 1]}" ]]; then log "error" "Error! project alias can't be empty."; exit 1; fi
-        removeProject "${params[$i + 1]}"
-        exit 0
-        ;;
+            if [[ -z "${params[$i + 1]}" ]]; then log "error" "Error! project alias can't be empty."; exit 1; fi
+            removeProject "${params[$i + 1]}"
+            exit 0
+            ;;
         --rm)
-        removeAllProjects
-        exit 0
-        ;;
+            removeAllProjects
+            exit 0
+            ;;
         --ls)
-        listAllProjects
-        exit 0
-        ;;
+            listAllProjects
+            exit 0
+            ;;
         -get)
-        getAliasFieldValue "${params[$i + 1]}" "${params[$i + 2]}"
-        exit 0
-        ;;
+            getAliasFieldValue "${params[$i + 1]}" "${params[$i + 2]}"
+            exit 0
+            ;;
         -ae)
-        isAliasExist "${params[$i + 1]}"
-        exit 0
-        ;;
+            isAliasExist "${params[$i + 1]}"
+            exit 0
+            ;;
         -getj)
-        getFormatedFieldValue "${params[$i + 1]}" "${params[$i + 2]}"
-        exit 0
-        ;;
+            getFormatedFieldValue "${params[$i + 1]}" "${params[$i + 2]}"
+            exit 0
+            ;;
         *)
-        log "error" "Error! command not found."
-        exit 1
-        ;;
+            log "error" "Error! command not found."
+            exit 1
+            ;;
     esac
 done

@@ -16,7 +16,7 @@ export gitProjects="${configDir}/git.projects"
 configureGitProjects() {
     node ${utilsDir}/vcs_menu.js
     vcs=$(cat ${configDir}/vcs.log)
-    if [[ "${vcs}" != "Github" && "${vcs}" != "Gitlab" ]]; then
+    if [[ "${vcs}" != "github" && "${vcs}" != "gitlab" ]]; then
         log "error" "Error! invalid version control system [${vcs}]."
         exit 1
     fi

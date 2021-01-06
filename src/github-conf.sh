@@ -35,9 +35,9 @@ read -p "?Create github project alias? y/n: " response
 
 case "${response}" in
     y|Y)
-    gpm -na "${data}"
-    ;;
+        gpm -na "${data}"
+        ;;
     *)
-    log "warning" "Creating new github project alias has been canceled!"
-    ;;
+        log "warning" "Creating new github project alias has been canceled!"
+        ;;
 esac
