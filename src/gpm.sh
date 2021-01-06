@@ -4,7 +4,7 @@
 if [[ ! -f "${gitProjects}" ]]; then printf "" > "${gitProjects}"; fi
 
 githubFields=(alias username token owner repo vcs)
-gitlabFields=(alias username token projectId domainName vcs)
+gitlabFields=(alias username token projectId domainName repo vcs)
 
 getFormatedFieldValue() {
     fieldName=${1}
