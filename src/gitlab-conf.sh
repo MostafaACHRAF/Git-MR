@@ -5,7 +5,7 @@ read -p "> Gitlab username: " username
 read -p "> Gitlab project id: " projectId
 read -p "> Gitlab access token: " accessToken
 read -p "> Organization domain name: " domainName
-read -p "> Gitlab Full repository name: " domainName
+read -p "> Gitlab Full repository name: " repo
 
 if [[ -z "${projectAlias}" ]]; then
   log "error" "Error! invalid project alias."
