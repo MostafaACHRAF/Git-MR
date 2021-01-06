@@ -153,7 +153,7 @@ purge() {
         y|Y)
             zshrc=~/.zshrc
             bashrc=~/.bashrc
-            target="export PATH=\\\$PATH:${appDir//\//\\/}"
+            target="PATH=\\\$PATH:${appDir//\//\\/}"
             printf "\n==> Clean up ${zshrc}..."
             sed -i -E 's/'"${target}"'//g' ${zshrc}
             if [[ $? == 1 ]]; then log "error" "Error! failed."; exit 1; else printf "Done ✔"; fi
