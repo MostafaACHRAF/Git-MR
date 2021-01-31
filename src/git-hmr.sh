@@ -53,7 +53,7 @@ case "${response}" in
 
 
         if [[ "${errors}" != "null" ]]; then
-            log "error" "Error! failed to create pull request."
+            log "error" "\nError! failed to create pull request."
             log "info" "👉 ${errors}"
             exit 1
         fi
