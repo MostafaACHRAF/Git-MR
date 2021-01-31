@@ -69,7 +69,7 @@ case "${response}" in
 
         printf "Done ✔\n"
 
-        if [ ! -z "${labels}" || ! -z "${assignees}" ]; then
+        if [[ ! -z "${labels}" || ! -z "${assignees}" ]]; then
             sleep 3s
             printf "==> Set labels and assignees..."
             errors=`curl -s -o \
