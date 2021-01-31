@@ -9,8 +9,6 @@
 
 data="${1}"
 
-echo "received data: ${data}"
-
 projectId=$(gpm -getj projectId "${data}")
 accessToken=$(gpm -getj accessToken "${data}")
 username=`gpm -getj username "${data}"`
