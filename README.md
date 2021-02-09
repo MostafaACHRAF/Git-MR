@@ -1,16 +1,17 @@
 ![gitmr-logo](./gitmr-logo-200x200.png)
 
-Give us a star!🌟
+Give me a star!🌟
 
 ---
 
 # What it is Git-MR?
-Git-MR is a git command to create git merge requests from the terminal.<br/>
-It makes you a more productive developer.<br/>
-Git-MR is a fast, safe, and fun way to create git merge requests.<br/>
+A git command to create git merge requests from the terminal.<br/>
+It's a more elegant way to create merge requests on github and gitlab.<br/>
+Git-MR is a fast, safe, and elegant.<br/>
 
-* The actual version supports Gitlab only. Support for Github will be coming in the next release.
-* This tool is created for linux/unix operating systems. Support for windows will be coming in the next release.
+* Git-MR comes in tow flavors:
+1- Installable version
+2- Docker image
 
 > The idea behind Git-MR, is that you don't have to leave your terminal to submit your merge requests.
 > Everything can be done from the terminal ❤️.
@@ -26,43 +27,49 @@ sudo git clone https://github.com/MostafaACHRAF/Git-MR /bin/gitmr && sudo chmod 
 
 Or you can try it using docker:<br/>
 ```
-docker run --rm -it --name gitmrc -v $PWD:/workspace -v ~/Documents:/config -t gitmr
+docker run --rm -it --name gitmrc -v $PWD:/workspace -v ${CONF_DIR}:/config -t gitmr:latest
 ```
-* ~/Documents is where gitmr will store and read it's configuration.
-* The workspace folder represent your gitlab/github project folder. By default it takes the actual folder as the workspace, but you can change it.
+* ${CONF_DIR}: is where gitmr will store and read it's configuration. You must provide a value for this parameter
+* ${PWD}: The actual folder will be mounted in workspace folder. The workspace represents your gitlab/github local repository. You can leave this parameter as it is, or change it.
 
 ---
 
-Or you can create an alisa in your ~/.bashrc, ~/.zshrc or whatever shell you use:<br/>
+Or you can create an alias, copy paste this line into your shell configuration file (~/.bashrc, ~/.zshrc...):<br/>
 ```
-gitmr() {...}
+alias gmra="docker run --rm -it --name gmr -v $PWD:/workspace -v ${CONF_DIR}:/conf -t gitmr:latest"
+```
+
+To test your installation run this command:<br/>
+```
+git mr --version
 ```
 
 ---
 
 # How to use it?
 After installing the tool on your machine. You can use 'git mr' as a terminal command.<br/>
-Or start a new docker container and enjoy gitmr like this:<br/>
+The way of use depends on installation type:<br/>
 
-### On terminal:
+### Normal installation:
 ```
-git mr --lab -t target_branch -s source_branch -a assignee_user -l labels -m title --wip
+git mr -in ${PROJECT_ALIAS} -t ${TARGET_PROJECT} -s ${SOURCE_PROJECT} -a ${ASSIGNEE_USER} -l ${LABELS} -m ${TITLE} --wip
 ```
 
 ### Docker without alias
 ```
-docker run --rm -it --name gitmrc -v $PWD:/workspace -v ~/Documents:/config -t gitmr --lab -t target_branch -s source_branch -a assignee_user -l labels -m title --wip
+docker run --rm -it --name gitmrc -v $PWD:/workspace -v ${CONF_DIR}:/conf -t gitmr -in ${PROJECT_ALIAS} -t ${TARGET_BRANCH} -s ${SOURCE_BRANCH} -a ${ASSIGNEE_USER} -l ${LABELS} -m ${TITLE} --wip
 ```
 
 ### Docker with alias
 ```
-your_alias --lab -t target_branch -s source_branch -a assignee_user -l labels -m title --wip
+${ALIAS} -in ${PROJECT_NAME} -t ${TARGET_BRANCH} -s ${SOURCE_BRANCH} -a ${ASSIGNEE_USER} -l ${LABELS} -m ${TITLE} --wip
 ```
 
 ---
 
 # Dependencies
 * NodeJs
+* npm
 * Git
 * Curl
 * jq
@@ -71,15 +78,18 @@ your_alias --lab -t target_branch -s source_branch -a assignee_user -l labels -m
 
 ---
 
+# Options
+
+---
+
 # Comming features
-> Add support for github ==> in progress<br/>
+> Add support for github ==> done<br/>
 > Update linux installer to a faster and more stable version ==> done<br/>
-> Create windows installer ==> not yet<br/>
-> Create a bash command to uninstall Git-MR on linux ==> in progress<br/>
+> Create a bash command to uninstall Git-MR on linux ==> done<br/>
 > Create a bash command to update the config file, rather than updating it manually by the user ==> done<br/>
 > Create Git-MR logo ==> done<br/>
-> Cronjob to notify the users when a new release come out<br/>
-> NodeJs menu list ==> in progress<br/>
-> Support for multiple projects at once (no need to do: git mr --config to switch between projects) ==> not yet<br/>
+> Cronjob to notify the users when a new release come out ==> not yet<br/>
+> NodeJs menu list ==> done<br/>
+> Support for multiple projects at once (no need to do: git mr --cnf to switch between projects) ==> done<br/>
 
 <strong>GitMR project - 2020</strong>

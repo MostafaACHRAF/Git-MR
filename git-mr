@@ -140,9 +140,10 @@ helper() {
     log "info" "4- git mr --rm: delete all project alias in (${gitProjects})"
     log "info" "5- git mr --ls: list all project alias in (${gitProjects})"
     log "info" "6- git mr -ae {alias}: check if an alias exist in (${gitProjects}). If so this function will return 'exist'"
-    log "info" "7- git mr --version: version"
-    log "info" "8- git mr -show {alias}: display alias data from (${gitProjects})."
-    log "info" "9- git mr help: help"
+    log "info" "7- git mr --version|--v: version"
+    log "info" "8- git mr --purge: uninstall gitmr 😢"
+    log "info" "9- git mr -show {alias}: display alias data from (${gitProjects})."
+    log "info" "10- git mr help: help"
 }
 
 export -f helper
@@ -241,6 +242,10 @@ for i in "${!params[@]}"; do
             ;;
         --purge)
             purge
+            exit 0
+            ;;
+        -show)
+            gpm -show "${params[$i + 1]}"
             exit 0
             ;;
     esac
