@@ -121,6 +121,19 @@ getAliasFieldValue() {
     fi
 }
 
+displayAliasDetails() {
+    alias="${1}"
+    details=""
+    if [[ -f "${configDir}/git.projects" && -s "${configDir}/git.projects" ]]; then
+        while read line; do
+            if [[ ${line} =~ ${alias}_.+ ]]; then
+                details+="${line}\n"
+            fi
+        done < "${configDir}/git.projects"
+    fi
+    printf "${details}\n"
+}
+
 ############################################################################################
 
 params=()
@@ -159,6 +172,10 @@ for i in "${!params[@]}"; do
             ;;
         -getj)
             getFormatedFieldValue "${params[$i + 1]}" "${params[$i + 2]}"
+            exit 0
+            ;;
+        -show)
+            displayAliasDetails "${params[$i + 1]}"
             exit 0
             ;;
         *)
