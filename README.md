@@ -21,7 +21,9 @@ Git-MR is a fast, safe, and elegant.<br/>
 # How to install it?
 Copy paste this command into your terminal:<br/>
 ```
-sudo git clone https://github.com/MostafaACHRAF/Git-MR /bin/gitmr \ && sudo chmod +x /bin/gitmr/installer.sh \ && sh /bin/gitmr/installer.sh
+sudo git clone https://github.com/MostafaACHRAF/Git-MR /bin/gitmr \
+&& sudo chmod +x /bin/gitmr/installer.sh \ 
+&& sh /bin/gitmr/installer.sh
 ```
 ---
 
