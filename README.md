@@ -57,7 +57,7 @@ git mr -in ${PROJECT_ALIAS} -t ${TARGET_PROJECT} -s ${SOURCE_PROJECT} -a ${ASSIG
 
 ### Docker without alias
 ```
-docker run --rm -it --name gitmrc -v $PWD:/workspace -v ${CONF_DIR}:/conf -t gitmr -in ${PROJECT_ALIAS} -t ${TARGET_BRANCH} -s ${SOURCE_BRANCH} -a ${ASSIGNEE_USER} -l ${LABELS} -m ${TITLE} --wip
+docker run --rm -it --name gitmrc -v $PWD:/workspace -v ${CONF_DIR}:/conf -t gitmr -in ${PROJECT_ALIAS} -t ${TARGET_BRANCH}
 ```
 
 ### Docker with alias
@@ -108,7 +108,7 @@ Option | Parameters       | Mandatory | Description                             
 --h    |                  |   No      | Get help                                                                                  |
 -rm    |  ${ALIAS}        |   No      | Remove one alias from: "conf/git.projects"                                                |
 --rm   |                  |   No      | Remove all alias                                                                          |
---purge                     No          Uninstall "gitmr"
+--purge|                  |  No       |  Uninstall "gitmr"                                                                        |
 
 ---
 
