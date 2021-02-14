@@ -94,9 +94,8 @@ git mr -in ${ALIAS} -t ${TARGET_BRANCH}
 
 Option | Parameters       | Mandatory | Description                        | Default
 ------ | ---------------- | --------- | ---------------------------------- | --------------------------
--in    |  ${ALIAS}        |   Yes     | Git project's alias                | 
-       |                  |           | in which this merge request        |  
-       |                  |           | will be created                    | 
+-in    |  ${ALIAS}        |   Yes     | Git project's alias in which this  | 
+       |                  |           | MR will be created                 | 
 ------ | ---------------- | --------- | ---------------------------------- | --------------------------
 -s     | ${SOURCE_BRANCH} | No        |   Source branch                    | Actual local branch
 ------ | ---------------- | --------- | ---------------------------------- | --------------------------
