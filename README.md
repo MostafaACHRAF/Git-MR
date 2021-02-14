@@ -94,14 +94,14 @@ git mr -in ${ALIAS} -t ${TARGET_BRANCH}
 
 Option | Parameters       | Mandatory | Description                        | Default
 ------ | ---------------- | --------- | ---------------------------------- | --------------------------
--in    |  ${ALIAS}        |   Yes     |    Git project's alias<br\>        |
-       |                  |           |    in which this merge request<br/>| 
-       |                  |           |    will be created                 |
+-in    |  ${ALIAS}        |   Yes     | Git project's alias                | 
+       |                  |           | in which this merge request        |  
+       |                  |           | will be created                    | 
 ------ | ---------------- | --------- | ---------------------------------- | --------------------------
--s       ${SOURCE_BRANCH}   No           Source branch                     Actual local branch
------- | ---------------- | --------- | -------------------------------- | --------------------------
--t       ${TARGET_BRANCH}   Yes          Target branch
------- | ---------------- | --------- | -------------------------------- | --------------------------
+-s     | ${SOURCE_BRANCH} | No        |   Source branch                    | Actual local branch
+------ | ---------------- | --------- | ---------------------------------- | --------------------------
+-t     | ${TARGET_BRANCH} |  Yes      |    Target branch                   |
+------ | ---------------- | --------- | ---------------------------------- | --------------------------
 -a       ${ASSIGNEE_USER}   No           Assignee user.<br/>               Actual configured git user
                                          To whom this MR will be assigned
 ------ | ---------------- | --------- | -------------------------------- | --------------------------
