@@ -92,36 +92,22 @@ git mr -t ${TARGET_BRANCH} -in ${ALIAS}
 git mr -in ${ALIAS} -t ${TARGET_BRANCH}
 ```
 
-Option | Parameters       | Mandatory | Description                                          | Default
------- | ---------------- | --------- | -----------------------------------------------------| --------------------------
--in    |  ${ALIAS}        |   Yes     | Git project's alias in which this MR will be created | 
------- | ---------------- | --------- | --------------| --------------------------
--s     | ${SOURCE_BRANCH} | No        | Source branch | Actual local branch
------- | ---------------- | --------- | ------------- | --------------------------
--t     | ${TARGET_BRANCH} |  Yes      | Target branch |
------- | ---------------- | --------- | ---------------------------------------------- | --------------------------
--a     | ${ASSIGNEE_USER} |  No       | Assignee user to whom this MR will be assigned | Actual configured git user     
------- | ---------------- | --------- | -----------------------------------------------| --------------------------
--m     |  ${TITLE}        |   No      | Merge request title                            | Head commit title
------- | ---------------- | --------- | -----------------------------------------------| --------------------------
--l     |  ${LABELS}       |   No      | Merge request labels. Separated by ","         |
------- | ---------------- | --------- | ---------------------------------------------- | --------------------------
+Option | Parameters       | Mandatory | Description                                                                               | Default
+------ | ---------------- | --------- | ------------------------------------------------------------------------------------------| --------------------------
+-in    |  ${ALIAS}        |   Yes     | Git project's alias in which this MR will be created                                      | 
+-s     | ${SOURCE_BRANCH} | No        | Source branch                                                                             | Actual local branch
+-t     | ${TARGET_BRANCH} |  Yes      | Target branch                                                                             |
+-a     | ${ASSIGNEE_USER} |  No       | Assignee user to whom this MR will be assigned                                            | Actual configured git user     
+-m     |  ${TITLE}        |   No      | Merge request title                                                                       | Head commit title
+-l     |  ${LABELS}       |   No      | Merge request labels. Separated by ","                                                    |
 --wip  |                  |   No      | Makes that MR's state: "Work in progress"                                                 |
------- | ---------------- | --------- | ----------------------------------------------------------------------------------------- | --------------------------
 --cnf  |                  |   No      | Configure or update git project's alias. Write configuration into: "conf/git.projects"    |
------- | ---------------- | --------- | ----------------------------------------------------------------------------------------- | --------------------------
 --ls   |                  |  No       | List all git alias found in: "conf/git.projects"                                          |
------- | ---------------- | --------- | ----------------------------------------------------------------------------------------- | --------------------------
 -show  |  ${ALIAS}        |   No      | Show details of one alias. Like: name, token, repo,...                                    |
------- | ---------------- | --------- | ----------------------------------------------------------------------------------------- | --------------------------
 --v    |                  |   No      | Display "gitmr" version                                                                   |
------- | ---------------- | --------- | ----------------------------------------------------------------------------------------- | --------------------------
 --h    |                  |   No      | Get help                                                                                  |
------- | ---------------- | --------- | ----------------------------------------------------------------------------------------- | --------------------------
 -rm    |  ${ALIAS}        |   No      | Remove one alias from: "conf/git.projects"                                                |
------- | ---------------- | --------- | ----------------------------------------------------------------------------------------- | --------------------------
 --rm   |                  |   No      | Remove all alias                                                                          |
------- | ---------------- | --------- | ----------------------------------------------------------------------------------------- | --------------------------
 --purge                     No          Uninstall "gitmr"
 
 ---
