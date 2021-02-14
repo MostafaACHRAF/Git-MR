@@ -21,7 +21,7 @@ Git-MR is a fast, safe, and elegant.<br/>
 # How to install it?
 Copy paste this command into your terminal:<br/>
 ```
-sudo git clone https://github.com/MostafaACHRAF/Git-MR /bin/gitmr && sudo chmod +x /bin/gitmr/installer.sh && sh /bin/gitmr/installer.sh
+sudo git clone https://github.com/MostafaACHRAF/Git-MR /bin/gitmr \ && sudo chmod +x /bin/gitmr/installer.sh \ && sh /bin/gitmr/installer.sh
 ```
 ---
 
@@ -57,7 +57,7 @@ git mr -in ${PROJECT_ALIAS} -t ${TARGET_PROJECT} -s ${SOURCE_PROJECT} -a ${ASSIG
 
 ### Docker without alias
 ```
-docker run --rm -it --name gitmrc -v $PWD:/workspace -v ${CONF_DIR}:/conf -t gitmr -in ${PROJECT_ALIAS} -t ${TARGET_BRANCH}
+docker run --rm -it --name gitmrc -v $PWD:/workspace -v ${CONF_DIR}:/conf -t gitmr -in ${ALIAS} -t ${TARGET_BRANCH}
 ```
 
 ### Docker with alias
