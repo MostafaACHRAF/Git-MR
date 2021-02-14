@@ -92,12 +92,12 @@ git mr -t ${TARGET_BRANCH} -in ${ALIAS}
 git mr -in ${ALIAS} -t ${TARGET_BRANCH}
 ```
 
-Option | Parameters       | Mandatory | Description                      | Default
------- | ---------------- | --------- | -------------------------------- | --------------------------
--in      ${ALIAS}           Yes         Git project's alias<br\>
-                                        in which this merge request<br/> 
-                                        will be created
------- | ---------------- | --------- | -------------------------------- | --------------------------
+Option | Parameters       | Mandatory | Description                        | Default
+------ | ---------------- | --------- | ---------------------------------- | --------------------------
+-in    |  ${ALIAS}        |   Yes     |    Git project's alias<br\>        |
+       |                  |           |    in which this merge request<br/>| 
+       |                  |           |    will be created                 |
+------ | ---------------- | --------- | ---------------------------------- | --------------------------
 -s       ${SOURCE_BRANCH}   No           Source branch                     Actual local branch
 ------ | ---------------- | --------- | -------------------------------- | --------------------------
 -t       ${TARGET_BRANCH}   Yes          Target branch
