@@ -31,6 +31,7 @@ authorId=`curl --header "Private-Token:${accessToken}" --silent "${usersUrl}?use
 if [[ -z "${authorId}" || -z "${assigneeId}" ]]; then
   log "error" "Error! authorId and assigneeId can't be null."
   log "info" "👉 Check your configuration in: ${gitProjects}"
+  exit 1
 fi
 
 body="{
