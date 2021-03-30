@@ -10,7 +10,7 @@ It's a more elegant way to create merge requests on github and gitlab.<br/>
 Git-MR is a fast, safe, and elegant.<br/>
 
 * Git-MR comes in tow flavors:
-1- Installable version
+1- Installable version <br/>
 2- Docker image
 
 > The idea behind Git-MR, is that you don't have to leave your terminal to submit your merge requests.
@@ -110,7 +110,7 @@ Option | Parameters       | Mandatory | Description                             
 --h    |                  |   No      | Get help                                                                                  |
 -rm    |  ${ALIAS}        |   No      | Remove one alias from: "conf/git.projects"                                                |
 --rm   |                  |   No      | Remove all alias                                                                          |
---purge|                  |  No       |  Uninstall "gitmr"                                                                        |
+--purge|                  |  No       | Uninstall "gitmr"                                                                        |
 
 ---
 
