@@ -9,8 +9,8 @@ A git command to create git merge requests from the terminal.<br/>
 It's a more elegant way to create merge requests on github and gitlab.<br/>
 Git-MR is a fast, safe, and elegant.<br/>
 
-* Git-MR comes in tow flavors:
-1- Installable version <br/>
+* Git-MR comes in tow flavors: <br/>
+1- Installable version
 2- Docker image
 
 > The idea behind Git-MR, is that you don't have to leave your terminal to submit your merge requests.
